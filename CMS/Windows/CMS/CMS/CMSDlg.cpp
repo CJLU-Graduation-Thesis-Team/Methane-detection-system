@@ -7,6 +7,8 @@
 #include "CMSDlg.h"
 #include "afxdialogex.h"
 
+#include "IOCPModel.h"
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -30,6 +32,9 @@ void CCMSDlg::DoDataExchange(CDataExchange* pDX)
 BEGIN_MESSAGE_MAP(CCMSDlg, CDialogEx)
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
+	ON_BN_CLICKED(IDC_BTN_EXIT, &CCMSDlg::OnBnClickedBtnExit)
+	ON_BN_CLICKED(IDC_BTN_START, &CCMSDlg::OnBnClickedBtnStart)
+	ON_BN_CLICKED(IDC_BTN_STOP, &CCMSDlg::OnBnClickedBtnStop)
 END_MESSAGE_MAP()
 
 
@@ -45,6 +50,8 @@ BOOL CCMSDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// 设置小图标
 
 	// TODO: 在此添加额外的初始化代码
+	//初始化界面信息
+	this->Init();
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
@@ -85,3 +92,73 @@ HCURSOR CCMSDlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
+//////////////////////////////////////////////////////////////////////
+// 初始化Socket库以及界面信息
+void CCMSDlg::Init()
+{
+	// 初始化Socket库
+	if (false == m_IOCP.LoadSocketLib())
+	{
+		AfxMessageBox(_T("加载Winsock 2.2失败，服务器端无法运行！"));
+		PostQuitMessage(0);
+	}
+
+	// 设置本机IP地址
+	SetDlgItemText(IDC_STATIC_IP, m_IOCP.GetLocalIP());
+	// 设置默认端口
+	SetDlgItemInt(IDC_EDIT_PORT, DEFAULT_PORT);
+	// 初始化列表
+	this->InitListCtrl();
+	// 绑定主界面指针(为了方便在界面中显示信息 )
+	m_IOCP.SetMainDlg(this);
+}
+
+///////////////////////////////////////////////////////////////////////
+//	初始化List Control
+void CCMSDlg::InitListCtrl()
+{
+	CListCtrl* pList = (CListCtrl*)GetDlgItem(IDC_LIST_INFO);
+	pList->SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_GRIDLINES);
+	pList->InsertColumn(0, "INFORMATION", LVCFMT_LEFT, 500);
+}
+
+
+void CCMSDlg::OnBnClickedBtnExit()
+{
+	// 停止监听
+	m_IOCP.Stop();
+
+	CDialog::OnCancel();
+}
+
+
+void CCMSDlg::OnBnClickedBtnStart()
+{
+	if (false == m_IOCP.Start())
+	{
+		AfxMessageBox(_T("服务器启动失败！"));
+		return;
+	}
+
+	GetDlgItem(IDC_BTN_START)->EnableWindow(FALSE);
+	GetDlgItem(IDC_BTN_STOP)->EnableWindow(TRUE);
+}
+
+
+void CCMSDlg::OnBnClickedBtnStop()
+{
+	m_IOCP.Stop();
+
+	GetDlgItem(IDC_BTN_STOP)->EnableWindow(FALSE);
+	GetDlgItem(IDC_BTN_START)->EnableWindow(TRUE);
+}
+
+
+///////////////////////////////////////////////////////////////////////
+//	系统退出的时候，为确保资源释放，停止监听，清空Socket类库
+void CCMSDlg::OnDestroy()
+{
+	OnBnClickedBtnExit();
+
+	CDialog::OnDestroy();
+}

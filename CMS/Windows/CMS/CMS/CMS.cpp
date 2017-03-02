@@ -68,7 +68,7 @@ BOOL CCMSApp::InitInstance()
 	// 更改用于存储设置的注册表项
 	// TODO: 应适当修改该字符串，
 	// 例如修改为公司或组织名
-	SetRegistryKey(_T("应用程序向导生成的本地应用程序"));
+	SetRegistryKey(_T("甲烷检测系统中心服务"));
 
 	CCMSDlg dlg;
 	m_pMainWnd = &dlg;

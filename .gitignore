@@ -1,0 +1,7 @@
+#过滤规则
+#vs工程下生成的临时文件
+*.sdf 
+*.APS
+Debug/
+ipch/
+.vs/

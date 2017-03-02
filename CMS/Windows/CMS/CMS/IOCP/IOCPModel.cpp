@@ -1,6 +1,6 @@
-#include "StdAfx.h"
+#include "stdafx.h"
 #include "IOCPModel.h"
-#include "MainDlg.h"
+#include "../CMSDlg.h"
 
 // 每一个处理器上产生多少个线程(为了最大限度的提升服务器性能，详见配套文档)
 #define WORKER_THREADS_PER_PROCESSOR 2
@@ -713,10 +713,10 @@ void CIOCPModel::_ShowMessage(const CString szFormat,...) const
 	va_end(arglist);
 
 	// 在主界面中显示
-	CMainDlg* pMain = (CMainDlg*)m_pMain;
+	CCMSDlg* pMain = (CCMSDlg*)m_pMain;
 	if( m_pMain!=NULL )
 	{
-		pMain->AddInformation(strMessage);
+		//pMain->AddInformation(strMessage);
 		TRACE( strMessage+_T("\n") );
 	}	
 }
@@ -768,7 +768,3 @@ bool CIOCPModel::HandleError( PER_SOCKET_CONTEXT *pContext,const DWORD& dwErr )
 		return false;
 	}
 }
-
-
-
-
