@@ -716,7 +716,7 @@ void CIOCPModel::_ShowMessage(const CString szFormat,...) const
 	CCMSDlg* pMain = (CCMSDlg*)m_pMain;
 	if( m_pMain!=NULL )
 	{
-		//pMain->AddInformation(strMessage);
+		pMain->AddInformation(strMessage);
 		TRACE( strMessage+_T("\n") );
 	}	
 }
