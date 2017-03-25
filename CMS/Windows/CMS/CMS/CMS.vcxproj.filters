@@ -1,0 +1,133 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="TcpIocp.cpp">
+      <Filter>TCP</Filter>
+    </ClCompile>
+    <ClCompile Include="HTTPContent.cpp">
+      <Filter>HTTP</Filter>
+    </ClCompile>
+    <ClCompile Include="HTTPDef.cpp">
+      <Filter>HTTP</Filter>
+    </ClCompile>
+    <ClCompile Include="HTTPRequest.cpp">
+      <Filter>HTTP</Filter>
+    </ClCompile>
+    <ClCompile Include="HTTPResponse.cpp">
+      <Filter>HTTP</Filter>
+    </ClCompile>
+    <ClCompile Include="HTTPServer.cpp">
+      <Filter>HTTP</Filter>
+    </ClCompile>
+    <ClCompile Include="StringConver.cpp">
+      <Filter>Utill</Filter>
+    </ClCompile>
+    <ClCompile Include="Logger.cpp">
+      <Filter>LOG</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="ATW.cpp">
+      <Filter>Utill</Filter>
+    </ClCompile>
+    <ClCompile Include="MainFrm.cpp">
+      <Filter>Dialog</Filter>
+    </ClCompile>
+    <ClCompile Include="SettingDlg.cpp">
+      <Filter>Dialog</Filter>
+    </ClCompile>
+    <ClCompile Include="ChildView.cpp">
+      <Filter>Dialog</Filter>
+    </ClCompile>
+    <ClCompile Include="CMS.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="TcpIocp.h">
+      <Filter>TCP</Filter>
+    </ClInclude>
+    <ClInclude Include="HTTPContent.h">
+      <Filter>HTTP</Filter>
+    </ClInclude>
+    <ClInclude Include="HTTPDef.h">
+      <Filter>HTTP</Filter>
+    </ClInclude>
+    <ClInclude Include="HTTPRequest.h">
+      <Filter>HTTP</Filter>
+    </ClInclude>
+    <ClInclude Include="HTTPResponse.h">
+      <Filter>HTTP</Filter>
+    </ClInclude>
+    <ClInclude Include="HTTPServer.h">
+      <Filter>HTTP</Filter>
+    </ClInclude>
+    <ClInclude Include="StringConver.h">
+      <Filter>Utill</Filter>
+    </ClInclude>
+    <ClInclude Include="Logger.h">
+      <Filter>LOG</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource.h">
+      <Filter>资源文件</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="ATW.h">
+      <Filter>Utill</Filter>
+    </ClInclude>
+    <ClInclude Include="MainFrm.h">
+      <Filter>Dialog</Filter>
+    </ClInclude>
+    <ClInclude Include="SettingDlg.h">
+      <Filter>Dialog</Filter>
+    </ClInclude>
+    <ClInclude Include="ChildView.h">
+      <Filter>Dialog</Filter>
+    </ClInclude>
+    <ClInclude Include="CMS.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ReadMe.txt" />
+    <None Include="res\CMS.ico">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="res\CMS.rc2">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="res\Toolbar.bmp">
+      <Filter>资源文件</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="资源文件">
+      <UniqueIdentifier>{59f14b0f-a77b-412b-8760-113f4637751f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="HTTP">
+      <UniqueIdentifier>{894d3ace-60e4-4df7-9cd0-f28a1762517c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="TCP">
+      <UniqueIdentifier>{206edb18-4a67-47c1-9841-96c702f9e228}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utill">
+      <UniqueIdentifier>{ccc0a33f-6c56-4632-9486-cc92be47ef4e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LOG">
+      <UniqueIdentifier>{b4ad9f29-53fa-4858-9027-e31b82075a43}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Windows">
+      <UniqueIdentifier>{6dcdb642-9205-4cf3-afe8-6781ecd62c88}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Dialog">
+      <UniqueIdentifier>{caa2a2e0-e309-42fb-be83-3d6da47fcc91}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="CMS.rc">
+      <Filter>资源文件</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>
