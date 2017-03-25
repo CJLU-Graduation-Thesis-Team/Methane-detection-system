@@ -271,6 +271,8 @@ void CMainFrame::OnStart()
 	CString strRoot = AfxGetApp()->GetProfileString(INI_SESSION, _T("Root"), szFilePath);
 	_tcsncpy(startDesc.szRootDir, (LPCTSTR)strRoot, MAX_PATH);
 	startDesc.nPort = AfxGetApp()->GetProfileInt(INI_SESSION, _T("Port"), 80);
+	startDesc.nDevPort = AfxGetApp()->GetProfileInt(INI_SESSION, _T("DevPort"), 8808);
+
 	startDesc.nMaxConnection =  AfxGetApp()->GetProfileInt(INI_SESSION, _T("MaxConnections"), 5000);
 	startDesc.bNavDir = AfxGetApp()->GetProfileInt(INI_SESSION, _T("ListFile"), TRUE);
 	startDesc.dwDeadConnectionTimeout = AfxGetApp()->GetProfileInt(INI_SESSION, _T("DeadConnectionTimeout"), 30) * 1000;
@@ -285,6 +287,9 @@ void CMainFrame::OnStart()
 	CString strDefName = AfxGetApp()->GetProfileString(INI_SESSION, _T("DefaultFileName"), _T("index.html,index.htm,default.html,default.htm"));
 	_tcsncpy(startDesc.szDefaultFileName, (LPCTSTR)strDefName, MAX_PATH);
 
+
+	//设置Tcp Server Port
+	m_Tcp.SetPort(startDesc.nDevPort);
 
 	// 初始化Socket库
 	if (false == m_Tcp.LoadSocketLib())
@@ -441,6 +446,7 @@ void CMainFrame::OnAppExit()
 void CMainFrame::OnClose()
 {
 	// TODO: Add your message handler code here and/or call default
+	UINT nRet = MessageBox(_T("服务窗口在后台运行"), _T("提示"), MB_OK);
 	ShowWindow(SW_HIDE);
 }
 

@@ -341,7 +341,7 @@ bool CIOCPModel::_InitializeListenSocket()
 	}
 	else
 	{
-		LOGGER_CINFO(theLogger, _T("设备连接线程Bind()函数完成 Port=[%d].\r\n")  , m_nPort);
+		LOGGER_CINFO(theLogger, _T("设备连接线程Bind()函数完成 端口=[%d].\r\n")  , m_nPort);
 
 		TRACE("bind() 完成.\n");
 	}

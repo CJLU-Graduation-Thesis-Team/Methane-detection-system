@@ -239,6 +239,6 @@ typedef struct tagHTTPServerStartDesc
 	IHTTPServerStatusHandler *pStatusHandler; // = NULL
 
 	//Dev Info
-	int nDevTcpPort;
+	int nDevPort;
 }HTTPSTARTDESC, *PHTTPSTARTDESC;
 
