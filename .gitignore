@@ -4,5 +4,6 @@
 *.APS
 *.opensdf
 Debug/
+Release/
 ipch/
 .vs/

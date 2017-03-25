@@ -100,7 +100,7 @@ DWORD WINAPI CIOCPModel::_WorkerThread(LPVOID lpParam)
 			// 判断是否有客户端断开了
 			if((0 == dwBytesTransfered) && ( RECV_POSTED==pIoContext->m_OpType || SEND_POSTED==pIoContext->m_OpType))  
 			{  
-				LOGGER_CINFO(theLogger, _T("甲烷传感器客户端 %s:%d 断开连接..\r\n"), (StringConVer::AnsiToUnicode(inet_ntoa(pSocketContext->m_ClientAddr.sin_addr))).c_str() , ntohs(pSocketContext->m_ClientAddr.sin_port));
+				LOGGER_CINFO(theLogger, _T("甲烷传感器客户端 %s:%d 断开连接..\r\n"), (AtoW(inet_ntoa(pSocketContext->m_ClientAddr.sin_addr))).c_str() , ntohs(pSocketContext->m_ClientAddr.sin_port));
 
 				// 释放掉对应的资源
 				pIOCPModel->_RemoveContext( pSocketContext );
@@ -510,9 +510,9 @@ bool CIOCPModel::_DoAccpet( PER_SOCKET_CONTEXT* pSocketContext, PER_IO_CONTEXT* 
 		sizeof(SOCKADDR_IN)+16, sizeof(SOCKADDR_IN)+16, (LPSOCKADDR*)&LocalAddr, &localLen, (LPSOCKADDR*)&ClientAddr, &remoteLen);  
 
 
-	std::wstring wsDevIp = StringConVer::AnsiToUnicode(inet_ntoa(ClientAddr->sin_addr));
+	std::wstring wsDevIp = AtoW(inet_ntoa(ClientAddr->sin_addr));
 	int nDevPort = ntohs(ClientAddr->sin_port);
-	std::wstring wsBuf = StringConVer::AnsiToUnicode(pIoContext->m_wsaBuf.buf);
+	std::wstring wsBuf = AtoW(pIoContext->m_wsaBuf.buf);
 
 	LOGGER_CINFO(theLogger, _T("甲烷检测装置连入  %s:%d ..\r\n"), wsDevIp.c_str(), nDevPort);
 	LOGGER_CINFO(theLogger, _T("甲烷检测装置  %s:%d 信息：%s ..\r\n"), wsDevIp.c_str(), nDevPort, wsBuf.c_str() ) ;
@@ -593,7 +593,7 @@ bool CIOCPModel::_DoRecv( PER_SOCKET_CONTEXT* pSocketContext, PER_IO_CONTEXT* pI
 	// 先把上一次的数据显示出现，然后就重置状态，发出下一个Recv请求
 	SOCKADDR_IN* ClientAddr = &pSocketContext->m_ClientAddr;
 
-	LOGGER_CINFO(theLogger, _T("设备连接线程收到 %s:%d 信息：%s..\r\n"), (StringConVer::AnsiToUnicode(inet_ntoa(ClientAddr->sin_addr))).c_str() , ntohs(ClientAddr->sin_port),  (StringConVer::AnsiToUnicode(pIoContext->m_wsaBuf.buf)).c_str() ) ;
+	LOGGER_CINFO(theLogger, _T("设备连接线程收到 %s:%d 信息：%s..\r\n"), (AtoW(inet_ntoa(ClientAddr->sin_addr))).c_str() , ntohs(ClientAddr->sin_port),  (AtoW(pIoContext->m_wsaBuf.buf)).c_str() ) ;
 
 //	this->_ShowMessage( _T("收到  %s:%d 信息：%s"),inet_ntoa(ClientAddr->sin_addr), ntohs(ClientAddr->sin_port),pIoContext->m_wsaBuf.buf );
 
