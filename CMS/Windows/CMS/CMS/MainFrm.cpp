@@ -8,6 +8,7 @@
 #include "MainFrm.h"
 #include "SettingDlg.h"
 
+#include "DB.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -249,6 +250,9 @@ std::wstring CMainFrame::getLogFileName()
 
 void CMainFrame::OnStart()
 {
+	DB m_DB;
+	m_DB.OnInitADOConn();
+
 	HTTPSTARTDESC startDesc;
 	memset(&startDesc, 0, sizeof(HTTPSTARTDESC));
 

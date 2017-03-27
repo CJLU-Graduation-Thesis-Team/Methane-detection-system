@@ -41,6 +41,9 @@
       <Filter>Dialog</Filter>
     </ClCompile>
     <ClCompile Include="CMS.cpp" />
+    <ClCompile Include="DB.cpp">
+      <Filter>DB</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="TcpIocp.h">
@@ -89,6 +92,9 @@
       <Filter>Dialog</Filter>
     </ClInclude>
     <ClInclude Include="CMS.h" />
+    <ClInclude Include="DB.h">
+      <Filter>DB</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
@@ -123,6 +129,9 @@
     </Filter>
     <Filter Include="Dialog">
       <UniqueIdentifier>{caa2a2e0-e309-42fb-be83-3d6da47fcc91}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DB">
+      <UniqueIdentifier>{3d2eceb1-d888-4481-8556-7072b943c1b2}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

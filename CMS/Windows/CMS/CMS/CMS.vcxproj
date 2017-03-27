@@ -130,6 +130,7 @@
   <ItemGroup>
     <ClCompile Include="ATW.cpp" />
     <ClCompile Include="ChildView.cpp" />
+    <ClCompile Include="DB.cpp" />
     <ClCompile Include="HTTPContent.cpp" />
     <ClCompile Include="HTTPDef.cpp" />
     <ClCompile Include="HTTPRequest.cpp" />
@@ -149,6 +150,7 @@
   <ItemGroup>
     <ClInclude Include="ATW.h" />
     <ClInclude Include="ChildView.h" />
+    <ClInclude Include="DB.h" />
     <ClInclude Include="HTTPContent.h" />
     <ClInclude Include="HTTPDef.h" />
     <ClInclude Include="HTTPRequest.h" />

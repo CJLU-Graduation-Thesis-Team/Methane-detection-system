@@ -24,6 +24,9 @@
 
 
 
+//ADO Dll
+#import "C:\Program Files\Common Files\System\ado\msado15.dll" no_namespace rename("EOF","rsEOF")
+
 
 
 #ifndef _AFX_NO_OLE_SUPPORT
