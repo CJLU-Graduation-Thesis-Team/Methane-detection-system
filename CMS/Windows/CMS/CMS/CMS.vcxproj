@@ -136,8 +136,10 @@
     <ClCompile Include="HTTPRequest.cpp" />
     <ClCompile Include="HTTPResponse.cpp" />
     <ClCompile Include="HTTPServer.cpp" />
+    <ClCompile Include="HTTPWork.cpp" />
     <ClCompile Include="Logger.cpp" />
     <ClCompile Include="MainFrm.cpp" />
+    <ClCompile Include="Markup.cpp" />
     <ClCompile Include="SettingDlg.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -156,8 +158,10 @@
     <ClInclude Include="HTTPRequest.h" />
     <ClInclude Include="HTTPResponse.h" />
     <ClInclude Include="HTTPServer.h" />
+    <ClInclude Include="HTTPWork.h" />
     <ClInclude Include="Logger.h" />
     <ClInclude Include="MainFrm.h" />
+    <ClInclude Include="Markup.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="SettingDlg.h" />
     <ClInclude Include="stdafx.h" />

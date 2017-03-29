@@ -4,13 +4,36 @@
 
 DB::DB()
 {
+	InitializeCriticalSection(&m_csDB);
 }
 
 
 DB::~DB()
 {
+	DeleteCriticalSection(&m_csDB);
 }
 
+void DB::Init()
+{
+
+}
+
+bool DB::Start(void)
+{
+
+	return true;
+}
+
+bool DB::Stop(void)
+{
+
+	return true;
+}
+
+void DB::Fini(void)
+{
+
+}
 
 void  DB::OnInitADOConn()
 {
@@ -99,33 +122,4 @@ void DB::ExitConnect()
 	//m_pConnection->Release();
 	// ÊÍ·Å»·¾³
 	::CoUninitialize();
-}
-
-
-bool DB::ConnectDB()
-{
-	CoInitialize(NULL);
-
-	_ConnectionPtr pConn;
-	_RecordsetPtr pRs("ADODB.Recordset");
-
-	pConn.CreateInstance(__uuidof(Connection));
-
-	try 
-	{
-		HRESULT hr = pConn->Open("DSN=MySql;Server=localhost;Database=methane-detection-system", "root", "chen77..", adModeUnknown);
-	}
-	catch (_com_error e)
-	{
-		AfxMessageBox(e.Description());
-	}
-
-
-
-
-	pRs->Open("Select * From Data", _variant_t(pConn, true), adOpenStatic, adLockOptimistic, adCmdText);
-
-	CString strID = (LPCTSTR)_bstr_t(pRs->GetCollect("FlightNO"));
-
-	return true;
 }

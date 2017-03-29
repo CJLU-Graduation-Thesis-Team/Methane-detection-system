@@ -367,6 +367,9 @@ int CHTTPContent::WriteString(const char* pszString)
 int CHTTPContent::Write(void* pData, int nSize) // 为将来支持 PUT, POST 方法做准备.
 {
 	ASSERT(pData && nSize > 0);
+
+	m_nOpenType = OPEN_TEXT;
+
 	int nLeft = m_nBufferSize - m_nWritePos;
 	
 	// 空间不够,继续分配.

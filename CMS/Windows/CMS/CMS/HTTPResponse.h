@@ -35,7 +35,8 @@ public:
 	SERVER_CODE SetServerCode(SERVER_CODE nNewCode); // 设置HTTP服务端响应码.
 	HTTP_METHOD SetMethod(HTTP_METHOD mh);
 	SERVER_CODE GetServerCode() { return m_nServerCode;}
-	
+
+	BOOL CookResponseWithXMl(std::string strRetXMl);  //以XM了生成响应
 	BOOL CookResponse(); // 生成响应
 	int PopData(void* pData, int nSize); // 弹出数据
 	BOOL IsEOF(); // 判断是否到结尾

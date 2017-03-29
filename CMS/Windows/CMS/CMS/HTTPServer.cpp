@@ -9,6 +9,7 @@
 #include "HTTPRequest.h"
 #include "HTTPResponse.h"
 #include "HTTPContent.h"
+#include "HTTPWork.h"
 
 #ifdef _DEBUG
 #undef THIS_FILE
@@ -1370,7 +1371,7 @@ void CHTTPServer::OnRequest(PCLIENTINF pSockInf)
 	// 请求的方法是否是 GET 或者 HEAD
 	HTTP_METHOD method = pSockInf->pRequest->GetMethod();
 	pSockInf->pResponse->SetMethod(method);
-	if(method != METHOD_GET && method != METHOD_HEAD)
+	if (method != METHOD_GET && method != METHOD_POST)
 	{
 		// 目前只支持两种HTTP方法
 		pSockInf->pResponse->SetServerCode(SC_BADMETHOD);
@@ -1379,6 +1380,16 @@ void CHTTPServer::OnRequest(PCLIENTINF pSockInf)
 		pSockInf->pResponse->AttachContent(pContent);
 		goto exit;
 	}
+
+	//if(method != METHOD_GET && method != METHOD_HEAD)
+	//{
+	//	// 目前只支持两种HTTP方法
+	//	pSockInf->pResponse->SetServerCode(SC_BADMETHOD);
+	//	CHTTPContent *pContent = new CHTTPContent;
+	//	pContent->OpenText(g_HTTP_Bad_Method, strlen(g_HTTP_Bad_Method));
+	//	pSockInf->pResponse->AttachContent(pContent);
+	//	goto exit;
+	//}
 	
 	// 获取客户端请求的对象
 	strUrlObject = pSockInf->pRequest->GetUrlObject();
@@ -1391,88 +1402,114 @@ void CHTTPServer::OnRequest(PCLIENTINF pSockInf)
 		pSockInf->pResponse->AttachContent(pContent);
 		goto exit;
 	}
-	
-	// 映射为服务器文件名.
-	mapServerFile(strUrlObject, strServerFilePath);
 
-	// 如果 URL 的最后一个字符是 '/' 说明请求文件列表,否则是请求一个具体的文件.
-	if(strUrlObject.back() == L'/')
-	{
-		// 浏览目录创建目录列表的内容对象,并关联给Response对象
-		CHTTPContent *pContent = new CHTTPContent;
-		if(m_bNavDir)
-		{
-			if(pContent->OpenDir(strUrlObject, strServerFilePath))
-			{
-				pSockInf->pResponse->SetServerCode(SC_OK);
-			}
-			else
-			{
-				// 无法列出目录的文件列表.
-				pContent->OpenText(g_HTTP_Server_Error, strlen(g_HTTP_Server_Error));
-				pSockInf->pResponse->SetServerCode(SC_SERVERERROR);
-			}
-		}
-		else
-		{
-			// 禁止浏览目录
-			// 先尝试打开默认文件
-			for(string_vector::iterator iter = m_vecDeftFileNames.begin(); iter != m_vecDeftFileNames.end(); ++iter)
-			{
-				std::wstring strDftFilePath(strServerFilePath);
-				strDftFilePath += *iter;
-				if(pContent->OpenFile(strDftFilePath.c_str()))
-				{
-					break;
-				}
-			}
 
-			if(pContent->IsOpen())
-			{
-				// 默认文件打开成功
-				pSockInf->pResponse->SetServerCode(SC_OK);
-			}
-			else
-			{
-				// 默认文件打开失败,提示禁止浏览目录,而不是404
-				pContent->OpenText(g_HTTP_Forbidden, strlen(g_HTTP_Forbidden));
-				pSockInf->pResponse->SetServerCode(SC_FORBIDDEN);
-			}
-		}
-		pSockInf->pResponse->AttachContent(pContent);
-	}
-	else
+	//对请求方法进行处理
+	switch (method)
 	{
-		// 客户端是否请求了断点续传的内容
-		// 创建文件内容对象并关联给Response对象
-		__int64 lFrom = 0;
-		__int64 lTo = -1;
-		if(pSockInf->pRequest->GetRange(lFrom, lTo))
-		{
-			pSockInf->pResponse->SetServerCode(SC_PARTIAL);
-		}
-		else
+	case METHOD_GET:
 		{
 			pSockInf->pResponse->SetServerCode(SC_OK);
 		}
+		break;
+	case METHOD_POST:
+		{
+			std::string strName = "CHen";
+			std::string strPwd = "1212";
+			std::string strRet;
+			CHTTPWork cHttpWork;
+			cHttpWork.AddUser(strName , strPwd , strRet);
 
-		CHTTPContent *pContent = new CHTTPContent;
-		if(pContent->OpenFile(strServerFilePath.c_str(), lFrom, lTo))
-		{
-			// 文件打开成功.
+			CHTTPContent *pContent = new CHTTPContent;
+			pContent->WriteString(strRet.c_str());
+			pSockInf->pResponse->AttachContent(pContent);
+
+			pSockInf->pResponse->CookResponseWithXMl(strRet);
 		}
-		else
-		{
-			// 文件不存在或者其它什么原因,打开失败.
-			pContent->OpenHtml(g_HTTP_Content_NotFound, strlen(g_HTTP_Content_NotFound));
-			pSockInf->pResponse->SetServerCode(SC_NOTFOUND);
-		}
-		pSockInf->pResponse->AttachContent(pContent);
+		break;
 	}
+	
+	//// 映射为服务器文件名.
+	//mapServerFile(strUrlObject, strServerFilePath);
+
+	//// 如果 URL 的最后一个字符是 '/' 说明请求文件列表,否则是请求一个具体的文件.
+	//if(strUrlObject.back() == L'/')
+	//{
+	//	// 浏览目录创建目录列表的内容对象,并关联给Response对象
+	//	CHTTPContent *pContent = new CHTTPContent;
+	//	if(m_bNavDir)
+	//	{
+	//		if(pContent->OpenDir(strUrlObject, strServerFilePath))
+	//		{
+	//			pSockInf->pResponse->SetServerCode(SC_OK);
+	//		}
+	//		else
+	//		{
+	//			// 无法列出目录的文件列表.
+	//			pContent->OpenText(g_HTTP_Server_Error, strlen(g_HTTP_Server_Error));
+	//			pSockInf->pResponse->SetServerCode(SC_SERVERERROR);
+	//		}
+	//	}
+	//	else
+	//	{
+	//		// 禁止浏览目录
+	//		// 先尝试打开默认文件
+	//		for(string_vector::iterator iter = m_vecDeftFileNames.begin(); iter != m_vecDeftFileNames.end(); ++iter)
+	//		{
+	//			std::wstring strDftFilePath(strServerFilePath);
+	//			strDftFilePath += *iter;
+	//			if(pContent->OpenFile(strDftFilePath.c_str()))
+	//			{
+	//				break;
+	//			}
+	//		}
+
+	//		if(pContent->IsOpen())
+	//		{
+	//			// 默认文件打开成功
+	//			pSockInf->pResponse->SetServerCode(SC_OK);
+	//		}
+	//		else
+	//		{
+	//			// 默认文件打开失败,提示禁止浏览目录,而不是404
+	//			pContent->OpenText(g_HTTP_Forbidden, strlen(g_HTTP_Forbidden));
+	//			pSockInf->pResponse->SetServerCode(SC_FORBIDDEN);
+	//		}
+	//	}
+	//	pSockInf->pResponse->AttachContent(pContent);
+	//}
+	//else
+	//{
+	//	// 客户端是否请求了断点续传的内容
+	//	// 创建文件内容对象并关联给Response对象
+	//	__int64 lFrom = 0;
+	//	__int64 lTo = -1;
+	//	if(pSockInf->pRequest->GetRange(lFrom, lTo))
+	//	{
+	//		pSockInf->pResponse->SetServerCode(SC_PARTIAL);
+	//	}
+	//	else
+	//	{
+	//		pSockInf->pResponse->SetServerCode(SC_OK);
+	//	}
+
+	//	CHTTPContent *pContent = new CHTTPContent;
+	//	if(pContent->OpenFile(strServerFilePath.c_str(), lFrom, lTo))
+	//	{
+	//		// 文件打开成功.
+	//	}
+	//	else
+	//	{
+	//		// 文件不存在或者其它什么原因,打开失败.
+	//		pContent->OpenHtml(g_HTTP_Content_NotFound, strlen(g_HTTP_Content_NotFound));
+	//		pSockInf->pResponse->SetServerCode(SC_NOTFOUND);
+	//	}
+	//	pSockInf->pResponse->AttachContent(pContent);
+	//}
 
 exit:
 	/////////// 准备响应头
-	pSockInf->pResponse->CookResponse();
+	//pSockInf->pResponse->CookResponse();
 
 	// 通知状态接收接口
 	if(m_pStatusHandler)

@@ -44,6 +44,12 @@
     <ClCompile Include="DB.cpp">
       <Filter>DB</Filter>
     </ClCompile>
+    <ClCompile Include="HTTPWork.cpp">
+      <Filter>HTTP</Filter>
+    </ClCompile>
+    <ClCompile Include="Markup.cpp">
+      <Filter>XML</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="TcpIocp.h">
@@ -95,6 +101,12 @@
     <ClInclude Include="DB.h">
       <Filter>DB</Filter>
     </ClInclude>
+    <ClInclude Include="HTTPWork.h">
+      <Filter>HTTP</Filter>
+    </ClInclude>
+    <ClInclude Include="Markup.h">
+      <Filter>XML</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
@@ -132,6 +144,9 @@
     </Filter>
     <Filter Include="DB">
       <UniqueIdentifier>{3d2eceb1-d888-4481-8556-7072b943c1b2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="XML">
+      <UniqueIdentifier>{a3eb5c0e-0682-4145-9b2a-62785d595a44}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

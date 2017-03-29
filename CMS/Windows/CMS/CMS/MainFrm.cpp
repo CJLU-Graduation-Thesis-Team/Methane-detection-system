@@ -250,8 +250,8 @@ std::wstring CMainFrame::getLogFileName()
 
 void CMainFrame::OnStart()
 {
-	DB m_DB;
-	m_DB.OnInitADOConn();
+	/*DB m_DB;
+	m_DB.OnInitADOConn();*/
 
 	HTTPSTARTDESC startDesc;
 	memset(&startDesc, 0, sizeof(HTTPSTARTDESC));

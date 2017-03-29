@@ -106,7 +106,101 @@ std::string CHTTPResponse::getFirstLine(SERVER_CODE nServerCode)
 	return str;
 }
 
+BOOL CHTTPResponse::CookResponseWithXMl(std::string strRetXMl)
+{
+	if (m_pContent != NULL)
+	{
 
+	}
+	else
+	{
+		ASSERT(0);
+		CHTTPContent *pContent = new CHTTPContent;
+		AttachContent(pContent);
+	}
+
+	// 如果客户不要求 Body, 设置响应码为 204
+	if (m_Method == METHOD_HEAD)
+	{
+		SetServerCode(SC_NOCONTENT);
+	}
+
+	// 第一行
+	strcat(m_pData, getFirstLine(GetServerCode()).c_str());
+
+	// Date
+	strcat(m_pData, "Date: ");
+	strcat(m_pData, FormatHTTPDate(NULL).c_str());
+	strcat(m_pData, "\r\n");
+
+	// 以下几行只有在有内容的时候才输出.
+	if ( !strRetXMl.empty() )
+	{
+		//// Last-Modified
+		//strcat(m_pData, "Last-Modified: ");
+		//strcat(m_pData, m_pContent->GetLastModified().c_str());
+		//strcat(m_pData, "\r\n");
+
+		//// ETag
+		//strcat(m_pData, "ETag: ");
+		//strcat(m_pData, m_pContent->GetETag().c_str());
+		//strcat(m_pData, "\r\n");
+
+		// Content-Type
+		strcat(m_pData, "Content-Type: ");
+		strcat(m_pData, "text / plain" );
+		strcat(m_pData, "\r\n");
+
+		// Content-Length
+		char szLen[200] = { 0 };
+		__int64 lLen = strRetXMl.length();
+		strcat(m_pData, "Content-Length: ");
+		strcat(m_pData, _i64toa(lLen, szLen, 10));
+		strcat(m_pData, "\r\n");
+
+		//// Content-Range: bytes %d-%d/%d\r\n"
+		//if (SC_PARTIAL == GetServerCode())
+		//{
+		//	strcat(m_pData, "Content-Range: ");
+		//	strcat(m_pData, m_pContent->GetContentRange().c_str());
+		//	strcat(m_pData, "\r\n");
+		//}
+	}
+	else
+	{
+		// Content-Length 
+		strcat(m_pData, "Content-Length: 0\r\n");
+	}
+
+	// "Accept-Ranges: bytes" 支持断点续传.
+	strcat(m_pData, "Accept-Ranges: bytes\r\n");
+
+	// 只支持 GET 和 POST 方法
+	if (GetServerCode() == SC_BADMETHOD)
+	{
+		strcat(m_pData, "Allow: GET, POST\r\n");
+	}
+
+	// XServer
+	strcat(m_pData, "Server: Chenguangle HTTP Server/1.5\r\n");
+
+	// connection,并结束
+	strcat(m_pData, "Connection: close\r\n\r\n");
+
+	// 客户端是否只要求响应头.
+	if (m_Method == METHOD_HEAD)
+	{
+		m_pContent->Close();
+	}
+
+	// 计算响应头的长度
+	m_nHeaderSize = strlen(m_pData);
+
+	//计算响应体长度
+	//m_nReadPos = strRetXMl.length();
+
+	return TRUE;
+}
 
 BOOL CHTTPResponse::CookResponse()
 {
@@ -224,14 +318,19 @@ BOOL CHTTPResponse::CookResponse()
 	// "Accept-Ranges: bytes" 支持断点续传.
 	strcat(m_pData, "Accept-Ranges: bytes\r\n");
 
-	// 只支持 GET 和 HEAD 方法
-	if(GetServerCode() == SC_BADMETHOD)
+	//// 只支持 GET 和 HEAD 方法
+	//if(GetServerCode() == SC_BADMETHOD)
+	//{
+	//	strcat(m_pData, "Allow: GET, HEAD\r\n");
+	//}
+	// 只支持 GET 和 POST 方法
+	if (GetServerCode() == SC_BADMETHOD)
 	{
-		strcat(m_pData, "Allow: GET, HEAD\r\n");
+		strcat(m_pData, "Allow: GET, POST\r\n");
 	}
 
 	// XServer
-	strcat(m_pData, "Server: Guangle's HTTP Server/1.5\r\n");
+	strcat(m_pData, "Server: Chenguangle HTTP Server/1.5\r\n");
 
 	// connection,并结束
 	strcat(m_pData, "Connection: close\r\n\r\n");
