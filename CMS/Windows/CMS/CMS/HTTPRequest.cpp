@@ -177,6 +177,100 @@ std::wstring CHTTPRequest::GetUrlObject()
 	return strObject;
 }
 
+// 返回客户端请求参数值
+bool CHTTPRequest::GetUrlData(std::wstring wstrUrlObject, std::vector<std::string>& vecRetData)
+{
+	std::wstring strObject(L"");
+	const char* lpszRequest = m_pData;
+	const char *pStart = NULL, *pEnd = NULL;
+
+	// 第一行的第一个空格的下一个字符开始是请求的文件名开始.
+	for (int i = 0; i < m_nPos; ++i)
+	{
+		if (lpszRequest[i] == ' ')
+		{
+			pStart = lpszRequest + i + 1;
+			break;
+		}
+		if (lpszRequest[i] == '\n') break;
+	}
+	if (pStart == NULL)
+	{
+		return false;
+	}
+
+	// 从第一行的末尾方向查找第一个空格,实例: GET / HTTP/1.1
+	pEnd = strstr(lpszRequest, "\r\n"); ASSERT(pEnd);
+	if (pEnd == NULL || pEnd < pStart)
+	{
+		return false;
+	}
+
+	while (pEnd >= pStart)
+	{
+		if (pEnd[0] == ' ')
+		{
+			pEnd--;
+			break;
+		}
+		pEnd--;
+	}
+
+	if (pEnd == NULL || pEnd < pStart)
+	{
+		return false;
+	}
+
+	// 已经取到了开始和结束的位置
+	int nObjectLen = pEnd - pStart + 1;
+	char *pszObject = new char[nObjectLen + 1]; ASSERT(pszObject);
+	ZeroMemory(pszObject, nObjectLen + 1);
+
+	// UTF8解码
+	//获取请求的Data部分
+	std::string strDataTmp;
+	for (int i = 0; i < nObjectLen; ++i)
+	{
+		if (pStart[i] == '?')
+		{
+			// '?' 后面是参数,忽略.
+			//
+			int nDataLen = nObjectLen - i - 1;  //不包含？ 号
+			char *pszUrlData = new char[nDataLen + 1]; ASSERT(pszUrlData);
+			ZeroMemory(pszUrlData, nDataLen + 1);
+			memcpy(pszUrlData, pStart+ i +1, nDataLen );
+			strDataTmp = pszUrlData;
+			delete[] pszUrlData;
+			break;
+		}
+	}
+
+	if ( !wstrUrlObject.compare(_T("/Login")) )
+	{
+		int nPosName , nPosPassWd , nPosAnd;
+		nPosName = strDataTmp.find("UserName") + sizeof("UserName");  //字符串末尾有‘\0’ 直接相加 相当与加上=
+		nPosPassWd = strDataTmp.find("PassWd") + sizeof("PassWd") ;
+		nPosAnd = strDataTmp.find('&');
+
+		std::string strUserName, strPassWd;
+		strUserName = strDataTmp.substr(nPosName , (nPosAnd - nPosName));
+		strPassWd = strDataTmp.substr(nPosPassWd, strDataTmp.length() - nPosPassWd );
+
+		vecRetData.push_back(strUserName);
+		vecRetData.push_back(strPassWd);
+
+	}
+	else if ( !wstrUrlObject.compare(_T("/Main/GetDeviceList")) )
+	{
+		int i = 0;
+	}
+
+
+
+	return true;
+
+}
+
 std::string CHTTPRequest::GetField(const char* pszKey)
 {
 	// 正真的字段应该是从换行开始,: 结束.

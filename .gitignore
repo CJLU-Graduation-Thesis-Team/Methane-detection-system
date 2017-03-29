@@ -3,6 +3,8 @@
 *.sdf 
 *.APS
 *.opensdf
+*.db
+*.opendb
 Debug/
 Release/
 ipch/

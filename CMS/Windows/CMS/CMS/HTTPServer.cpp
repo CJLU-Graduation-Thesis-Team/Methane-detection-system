@@ -1409,7 +1409,24 @@ void CHTTPServer::OnRequest(PCLIENTINF pSockInf)
 	{
 	case METHOD_GET:
 		{
+			std::vector<std::string> vecTmp;
+			std::string strRet;
+
+			CHTTPWork cHttpWork;
+
+			pSockInf->pRequest->GetUrlData(strUrlObject , vecTmp);
+			cHttpWork.AddUser(vecTmp.at(0), vecTmp.at(1), strRet);
+
+
+
 			pSockInf->pResponse->SetServerCode(SC_OK);
+
+			CHTTPContent *pContent = new CHTTPContent;
+			pContent->WriteString(strRet.c_str());
+			pSockInf->pResponse->AttachContent(pContent);
+
+			pSockInf->pResponse->CookResponseWithXMl(strRet);
+
 		}
 		break;
 	case METHOD_POST:

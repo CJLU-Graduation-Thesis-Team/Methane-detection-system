@@ -32,6 +32,7 @@ public:
 
 	HTTP_METHOD GetMethod(); // 返回HTTP 方法
 	std::wstring GetUrlObject(); // 返回客户端请求的对象(已经经过UTF8解码,所以返回宽字符串)
+	bool CHTTPRequest::GetUrlData(std::wstring wstrUrlObject , std::vector<std::string>& vecRetData);  //返回客户端请求是附带的数据  (HTTP头中只有ANSI字符,所以返回string向量集).
 	std::string GetField(const char* pszKey); // 返回请求头中的一个字段(HTTP头中只有ANSI字符,所以返回string).
 	BOOL GetRange(__int64 &lFrom, __int64 &lTo);
 
