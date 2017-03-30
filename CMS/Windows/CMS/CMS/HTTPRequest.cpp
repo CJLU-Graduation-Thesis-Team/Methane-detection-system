@@ -48,10 +48,11 @@ BOOL CHTTPRequest::Verify()
 		return FALSE;
 	}
 
-	if( (pszEndTag + 4) != (m_pData + m_nPos) )
-	{
-		return FALSE;
-	}
+	//对于Post请求 请求头后附有数据 不再判断 只验证是否拥有请求头
+	//if( (pszEndTag + 4) != (m_pData + m_nPos) )
+	//{
+	//	return FALSE;
+	//}
 
 	return TRUE;
 }
@@ -177,92 +178,227 @@ std::wstring CHTTPRequest::GetUrlObject()
 	return strObject;
 }
 
-// 返回客户端请求参数值
-bool CHTTPRequest::GetUrlData(std::wstring wstrUrlObject, std::vector<std::string>& vecRetData)
+// 返回客户端请求参数值 (Get请求)
+bool CHTTPRequest::GetUrlData(HTTP_METHOD enumMetMod , std::wstring wstrUrlObject, std::vector<std::string>& vecRetData)
 {
-	std::wstring strObject(L"");
-	const char* lpszRequest = m_pData;
-	const char *pStart = NULL, *pEnd = NULL;
 
-	// 第一行的第一个空格的下一个字符开始是请求的文件名开始.
-	for (int i = 0; i < m_nPos; ++i)
+	switch (enumMetMod)
 	{
-		if (lpszRequest[i] == ' ')
+		case METHOD_POST:
 		{
-			pStart = lpszRequest + i + 1;
-			break;
+			// 两个连续的换行应该在请求头的最后
+			char* pszDataStartTag = strstr(m_pData, "\r\n\r\n");
+			if (pszDataStartTag == NULL)
+			{
+				return FALSE;
+			}
+			//请求数据值
+			std::string strDataTmp = pszDataStartTag + 4 ;
+
+			if (!wstrUrlObject.compare(_T("/Main/AddUser")))
+			{
+				int nPosName, nPosPassWd, nPosAnd;
+				nPosName = strDataTmp.find("UserName") + sizeof("UserName");  //字符串末尾有‘\0’ 直接相加 相当与加上=
+				nPosPassWd = strDataTmp.find("PassWd") + sizeof("PassWd");
+				nPosAnd = strDataTmp.find('&');
+
+				std::string strUserName, strPassWd;
+				strUserName = strDataTmp.substr(nPosName, (nPosAnd - nPosName));
+				strPassWd = strDataTmp.substr(nPosPassWd, strDataTmp.length() - nPosPassWd);
+
+				vecRetData.push_back(strUserName);
+				vecRetData.push_back(strPassWd);
+			}
+			else if (!wstrUrlObject.compare(_T("/Main/AddDevice")))
+			{
+				int nPosName, nPosDevSn, nPosAnd;
+				nPosName = strDataTmp.find("UserName") + sizeof("UserName");  //字符串末尾有‘\0’ 直接相加 相当与加上=
+				nPosDevSn = strDataTmp.find("DevSn") + sizeof("DevSn");
+				nPosAnd = strDataTmp.find('&');
+
+				std::string strUserName, strDevSn;
+				strUserName = strDataTmp.substr(nPosName, (nPosAnd - nPosName));
+				strDevSn = strDataTmp.substr(nPosDevSn, strDataTmp.length() - nPosDevSn);
+
+				vecRetData.push_back(strUserName);
+				vecRetData.push_back(strDevSn);
+			}
+			else if (!wstrUrlObject.compare(_T("/Main/SetDeviceThreshold")))
+			{
+				int nPosDevSn, nPosThreshold, nPosAnd;
+				nPosDevSn = strDataTmp.find("DevSn") + sizeof("DevSn");
+				nPosThreshold = strDataTmp.find("Threshold") + sizeof("Threshold");  //字符串末尾有‘\0’ 直接相加 相当与加上=
+				nPosAnd = strDataTmp.find('&');
+
+				std::string  strDevSn,strThreshold;
+				strDevSn = strDataTmp.substr(nPosDevSn, strDataTmp.length() - nPosDevSn);
+				strThreshold = strDataTmp.substr(nPosThreshold, (nPosAnd - nPosThreshold));
+
+				vecRetData.push_back(strDevSn);
+				vecRetData.push_back(strThreshold);
+
+			}
 		}
-		if (lpszRequest[i] == '\n') break;
-	}
-	if (pStart == NULL)
-	{
-		return false;
-	}
-
-	// 从第一行的末尾方向查找第一个空格,实例: GET / HTTP/1.1
-	pEnd = strstr(lpszRequest, "\r\n"); ASSERT(pEnd);
-	if (pEnd == NULL || pEnd < pStart)
-	{
-		return false;
-	}
-
-	while (pEnd >= pStart)
-	{
-		if (pEnd[0] == ' ')
+		break;
+		case METHOD_GET:
 		{
-			pEnd--;
-			break;
+			std::wstring strObject(L"");
+			const char* lpszRequest = m_pData;
+			const char *pStart = NULL, *pEnd = NULL;
+
+			// 第一行的第一个空格的下一个字符开始是请求的文件名开始.
+			for (int i = 0; i < m_nPos; ++i)
+			{
+				if (lpszRequest[i] == ' ')
+				{
+					pStart = lpszRequest + i + 1;
+					break;
+				}
+				if (lpszRequest[i] == '\n') break;
+			}
+			if (pStart == NULL)
+			{
+				return false;
+			}
+
+			// 从第一行的末尾方向查找第一个空格,实例: GET / HTTP/1.1
+			pEnd = strstr(lpszRequest, "\r\n"); ASSERT(pEnd);
+			if (pEnd == NULL || pEnd < pStart)
+			{
+				return false;
+			}
+
+			while (pEnd >= pStart)
+			{
+				if (pEnd[0] == ' ')
+				{
+					pEnd--;
+					break;
+				}
+				pEnd--;
+			}
+
+			if (pEnd == NULL || pEnd < pStart)
+			{
+				return false;
+			}
+
+			// 已经取到了开始和结束的位置
+			int nObjectLen = pEnd - pStart + 1;
+			char *pszObject = new char[nObjectLen + 1]; ASSERT(pszObject);
+			ZeroMemory(pszObject, nObjectLen + 1);
+
+			// UTF8解码
+			//获取请求的Data部分
+			std::string strDataTmp;
+			for (int i = 0; i < nObjectLen; ++i)
+			{
+				if (pStart[i] == '?')
+				{
+					// '?' 后面是参数,忽略.
+					//
+					int nDataLen = nObjectLen - i - 1;  //不包含？ 号
+					char *pszUrlData = new char[nDataLen + 1]; ASSERT(pszUrlData);
+					ZeroMemory(pszUrlData, nDataLen + 1);
+					memcpy(pszUrlData, pStart + i + 1, nDataLen);
+					strDataTmp = pszUrlData;
+					delete[] pszUrlData;
+					break;
+				}
+			}
+
+			if (!wstrUrlObject.compare(_T("/Login")))
+			{
+				int nPosName, nPosPassWd, nPosAnd;
+				nPosName = strDataTmp.find("UserName") + sizeof("UserName");  //字符串末尾有‘\0’ 直接相加 相当与加上=
+				nPosPassWd = strDataTmp.find("PassWd") + sizeof("PassWd");
+				nPosAnd = strDataTmp.find('&');
+
+				std::string strUserName, strPassWd;
+				strUserName = strDataTmp.substr(nPosName, (nPosAnd - nPosName));
+				strPassWd = strDataTmp.substr(nPosPassWd, strDataTmp.length() - nPosPassWd);
+
+				vecRetData.push_back(strUserName);
+				vecRetData.push_back(strPassWd);
+
+			}
+			else if (!wstrUrlObject.compare(_T("/Main/GetDeviceList")))
+			{
+				int nPosName;
+				nPosName = strDataTmp.find("UserName") + sizeof("UserName");  //字符串末尾有‘\0’ 直接相加 相当与加上=
+
+				std::string strUserName;
+				strUserName = strDataTmp.substr(nPosName, strDataTmp.length() - nPosName);
+
+				vecRetData.push_back(strUserName);
+			}
+			else if (!wstrUrlObject.compare(_T("/Main/GetDeviceStatus")))
+			{
+				int nPosDevSn;
+				nPosDevSn = strDataTmp.find("DevSn") + sizeof("DevSn");  //字符串末尾有‘\0’ 直接相加 相当与加上=
+
+				std::string strDevSn;
+				strDevSn = strDataTmp.substr(nPosDevSn, strDataTmp.length() - nPosDevSn);
+
+				vecRetData.push_back(strDevSn);
+			}
+
 		}
-		pEnd--;
-	}
-
-	if (pEnd == NULL || pEnd < pStart)
-	{
-		return false;
-	}
-
-	// 已经取到了开始和结束的位置
-	int nObjectLen = pEnd - pStart + 1;
-	char *pszObject = new char[nObjectLen + 1]; ASSERT(pszObject);
-	ZeroMemory(pszObject, nObjectLen + 1);
-
-	// UTF8解码
-	//获取请求的Data部分
-	std::string strDataTmp;
-	for (int i = 0; i < nObjectLen; ++i)
-	{
-		if (pStart[i] == '?')
-		{
-			// '?' 后面是参数,忽略.
-			//
-			int nDataLen = nObjectLen - i - 1;  //不包含？ 号
-			char *pszUrlData = new char[nDataLen + 1]; ASSERT(pszUrlData);
-			ZeroMemory(pszUrlData, nDataLen + 1);
-			memcpy(pszUrlData, pStart+ i +1, nDataLen );
-			strDataTmp = pszUrlData;
-			delete[] pszUrlData;
+		break;
+		default:
 			break;
-		}
 	}
 
-	if ( !wstrUrlObject.compare(_T("/Login")) )
+	return true;
+}
+
+
+// 返回客户端请求参数值 (Get请求)
+bool CHTTPRequest::PostUrlData(std::wstring wstrUrlObject, std::vector<std::string>& vecRetData)
+{
+	// 两个连续的换行应该在请求头的最后
+	char* pszDataStartTag = strstr(m_pData, "\r\n\r\n");
+	if (pszDataStartTag == NULL)
 	{
-		int nPosName , nPosPassWd , nPosAnd;
+		return FALSE;
+	}
+	//请求数据值
+	std::string strDataTmp = pszDataStartTag;
+
+	if (!wstrUrlObject.compare(_T("/Main/AddUser")))
+	{
+		int nPosName, nPosPassWd, nPosAnd;
 		nPosName = strDataTmp.find("UserName") + sizeof("UserName");  //字符串末尾有‘\0’ 直接相加 相当与加上=
-		nPosPassWd = strDataTmp.find("PassWd") + sizeof("PassWd") ;
+		nPosPassWd = strDataTmp.find("PassWd") + sizeof("PassWd");
 		nPosAnd = strDataTmp.find('&');
 
 		std::string strUserName, strPassWd;
-		strUserName = strDataTmp.substr(nPosName , (nPosAnd - nPosName));
-		strPassWd = strDataTmp.substr(nPosPassWd, strDataTmp.length() - nPosPassWd );
+		strUserName = strDataTmp.substr(nPosName, (nPosAnd - nPosName));
+		strPassWd = strDataTmp.substr(nPosPassWd, strDataTmp.length() - nPosPassWd);
 
 		vecRetData.push_back(strUserName);
 		vecRetData.push_back(strPassWd);
 
 	}
-	else if ( !wstrUrlObject.compare(_T("/Main/GetDeviceList")) )
+	else if (!wstrUrlObject.compare(_T("/Main/GetDeviceList")))
 	{
-		int i = 0;
+		int nPosName;
+		nPosName = strDataTmp.find("UserName") + sizeof("UserName");  //字符串末尾有‘\0’ 直接相加 相当与加上=
+
+		std::string strUserName;
+		strUserName = strDataTmp.substr(nPosName, strDataTmp.length() - nPosName);
+
+		vecRetData.push_back(strUserName);
+	}
+	else if (!wstrUrlObject.compare(_T("/Main/GetDeviceStatus")))
+	{
+		int nPosDevSn;
+		nPosDevSn = strDataTmp.find("DevSN") + sizeof("DevSN");  //字符串末尾有‘\0’ 直接相加 相当与加上=
+
+		std::string strDevSn;
+		strDevSn = strDataTmp.substr(nPosDevSn, strDataTmp.length() - nPosDevSn);
+
+		vecRetData.push_back(strDevSn);
 	}
 
 
