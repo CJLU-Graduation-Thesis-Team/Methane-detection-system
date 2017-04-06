@@ -50,11 +50,14 @@ bool CHTTPWork::Login(std::string strName, std::string strPwd, std::string&  str
 		m_cstrSql.Format(_T("SELECT id FROM user WHERE strUserName = '%s' AND strPassWd= '%s'" ), AtoW(strName.c_str()).c_str() , AtoW(strPwd.c_str()).c_str());
 		m_pRecordset = m_DBManger.GetRecordSet(m_cstrSql.GetBuffer());
 
+		_variant_t  vSql_PassID;
+
+
 		try
 		{
 			while (!m_pRecordset->adoEOF)
 			{
-				vSql_ID = m_pRecordset->GetCollect(_T("Id"));
+				vSql_PassID = m_pRecordset->GetCollect(_T("Id"));
 				m_pRecordset->MoveNext();
 			}
 		}
@@ -70,7 +73,7 @@ bool CHTTPWork::Login(std::string strName, std::string strPwd, std::string&  str
 		Xml.IntoElem();
 
 
-		if (vSql_ID.vt == VT_EMPTY || vSql_ID.vt == VT_NULL)//√‹¬Î¥ÌŒÛ
+		if (vSql_PassID.vt == VT_EMPTY || vSql_PassID.vt == VT_NULL)//√‹¬Î¥ÌŒÛ
 		{
 			Xml.AddElem(_T("Dec"), _T("Error Pwd"));
 			Xml.AddElem(_T("Ret"), 201);
@@ -121,7 +124,7 @@ bool CHTTPWork::GetDeviceList(std::string strName, std::string& strRetXml)
 	}
 
 
-	Xml.SetDoc(_T("<?xml version='1.0' encoding='UTF-8'?>"));
+	Xml.SetDoc(_T("<?xml version='1.0' encoding='UTF-8'?> \n"));
 	Xml.AddElem(_T("Root"));
 	Xml.IntoElem();
 

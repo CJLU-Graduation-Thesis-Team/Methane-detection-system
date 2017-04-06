@@ -14,6 +14,11 @@ CSettingDlg::CSettingDlg(CWnd* pParent /*=NULL*/)
 	, m_bAutoLaunch(FALSE)
 	, m_bAutoRun(FALSE)
 	, m_strRoot(_T(""))
+	, m_strDSN(_T("MySql"))
+	, m_strServer(_T("localhost"))
+	, m_strSrouce(_T("methane-detection-system"))
+	, m_strUserName(_T("root"))
+	, m_strPassWd(_T("cjlu12345+"))
 	, m_nPort(80)
 	, m_nDevPort(8808)
 	, m_bListFile(TRUE)
@@ -39,6 +44,11 @@ void CSettingDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Check(pDX, IDC_CHECK2, m_bAutoLaunch);
 	DDX_Check(pDX, IDC_CHECK1, m_bAutoRun);
 	DDX_Text(pDX, IDC_EDIT1, m_strRoot);
+	DDX_Text(pDX, IDC_EDIT10, m_strDSN);
+	DDX_Text(pDX, IDC_EDIT11, m_strServer);
+	DDX_Text(pDX, IDC_EDIT12, m_strSrouce);
+	DDX_Text(pDX, IDC_EDIT13, m_strUserName);
+	DDX_Text(pDX, IDC_EDIT14, m_strPassWd);
 	DDX_Text(pDX, IDC_EDIT2, m_nPort);
 	DDX_Text(pDX,IDC_EDIT_DEEV_PORT,m_nDevPort);
 	DDV_MinMaxInt(pDX, m_nPort, 1, 65535);
@@ -69,6 +79,7 @@ BEGIN_MESSAGE_MAP(CSettingDlg, CDialog)
 	ON_BN_CLICKED(IDCANCEL, &CSettingDlg::OnBnClickedCancel)
 	ON_BN_CLICKED(IDC_CHECK3, &CSettingDlg::OnBnClickedCheck3)
 	ON_BN_CLICKED(IDC_CHECK5, &CSettingDlg::OnBnClickedCheck5)
+	ON_EN_CHANGE(IDC_EDIT5, &CSettingDlg::OnEnChangeEdit5)
 END_MESSAGE_MAP()
 
 
@@ -86,6 +97,14 @@ void CSettingDlg::OnBnClickedOk()
 	AfxGetApp()->WriteProfileInt(INI_SESSION, _T("ListFile"), m_bListFile);
 	AfxGetApp()->WriteProfileString(INI_SESSION, _T("DefaultFileName"), m_strDefName);
 	AfxGetApp()->WriteProfileString(INI_SESSION, _T("Root"), m_strRoot);
+
+	AfxGetApp()->WriteProfileString(INI_SESSION, _T("DSN"), m_strDSN);
+	AfxGetApp()->WriteProfileString(INI_SESSION, _T("Server"), m_strServer);
+	AfxGetApp()->WriteProfileString(INI_SESSION, _T("Srouce"), m_strSrouce);
+	AfxGetApp()->WriteProfileString(INI_SESSION, _T("UserName"), m_strUserName);
+	AfxGetApp()->WriteProfileString(INI_SESSION, _T("PassWd"), m_strPassWd);
+
+
 	AfxGetApp()->WriteProfileInt(INI_SESSION, _T("Port"), m_nPort);
 	AfxGetApp()->WriteProfileInt(INI_SESSION, _T("DevPort"), m_nDevPort);
 	AfxGetApp()->WriteProfileInt(INI_SESSION, _T("MaxConnections"), m_nMaxConn);
@@ -133,6 +152,11 @@ BOOL CSettingDlg::OnInitDialog()
 	m_bListFile = AfxGetApp()->GetProfileInt(INI_SESSION, _T("ListFile"), 1);
 	m_strDefName = AfxGetApp()->GetProfileString(INI_SESSION, _T("DefaultFileName"), _T("index.html,index.htm,default.html,default.htm"));
 	m_strRoot = AfxGetApp()->GetProfileString(INI_SESSION, _T("Root"), szFilePath);
+	m_strDSN = AfxGetApp()->GetProfileString(INI_SESSION, _T("DSN"), _T("MySql"));
+	m_strServer = AfxGetApp()->GetProfileString(INI_SESSION, _T("Server"), _T("localhost"));
+	m_strSrouce = AfxGetApp()->GetProfileString(INI_SESSION, _T("Srouce"), _T("methane-detection-system"));
+	m_strUserName = AfxGetApp()->GetProfileString(INI_SESSION, _T("UserName"), _T("root"));
+	m_strPassWd = AfxGetApp()->GetProfileString(INI_SESSION, _T("PassWd"), _T("cjlu12345+"));
 	m_nPort = AfxGetApp()->GetProfileInt(INI_SESSION, _T("Port"), 80);
 	m_nDevPort = AfxGetApp()->GetProfileInt(INI_SESSION, _T("DevPort"), 8808);
 	m_nMaxConn = AfxGetApp()->GetProfileInt(INI_SESSION, _T("MaxConnections"), 5000);
@@ -168,4 +192,15 @@ void CSettingDlg::OnBnClickedCheck5()
 		m_chkDisableScreenLog.SetCheck(BST_CHECKED);
 	}
 	*/
+}
+
+
+void CSettingDlg::OnEnChangeEdit5()
+{
+	// TODO:  如果该控件是 RICHEDIT 控件，它将不
+	// 发送此通知，除非重写 CDialog::OnInitDialog()
+	// 函数并调用 CRichEditCtrl().SetEventMask()，
+	// 同时将 ENM_CHANGE 标志“或”运算到掩码中。
+
+	// TODO:  在此添加控件通知处理程序代码
 }

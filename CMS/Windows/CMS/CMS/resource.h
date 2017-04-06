@@ -1,6 +1,6 @@
 //{{NO_DEPENDENCIES}}
 // Microsoft Visual C++ 生成的包含文件。
-// 供 WebServer.rc 使用
+// 供 CMS.rc 使用
 //
 #define IDD_ABOUTBOX                    100
 #define IDP_SOCKETS_INIT_FAILED         104
@@ -22,6 +22,11 @@
 #define IDC_EDIT8                       1012
 #define IDC_EDIT9                       1013
 #define IDC_EDIT_DEEV_PORT              1013
+#define IDC_EDIT10                      1014
+#define IDC_EDIT11                      1015
+#define IDC_EDIT12                      1016
+#define IDC_EDIT13                      1017
+#define IDC_EDIT14                      1018
 #define ID_32771                        32771
 #define ID_32772                        32772
 #define ID_32773                        32773

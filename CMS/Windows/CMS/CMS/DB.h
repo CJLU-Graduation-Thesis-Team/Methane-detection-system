@@ -1,4 +1,26 @@
 #pragma once
+
+
+typedef   struct   DBInfo
+{
+	std::string strDSN;
+	std::string strServer;
+	std::string strDataBase;
+	std::string strUserName;
+	std::string strPassWd;
+
+	DBInfo()
+	{
+		strDSN = "MySql";
+		strServer = "localhost";
+		strDataBase = "methane-detection-system";
+		strUserName = "root";
+		strPassWd = "cjlu12345+";
+	}
+} DBConfig;
+
+
+
 class DB
 {
 public:
@@ -10,6 +32,12 @@ public:
 	bool Start(void);
 	bool Stop(void);
 	void Fini(void);
+
+	static bool SetDBConfig(DBConfig strDBInfo);
+
+private:
+	static DBConfig m_dbConfig;
+	static std::string strConnInfo;
 
 private:
 	//添加一个指向Connection对象的指针:

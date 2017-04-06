@@ -250,8 +250,6 @@ std::wstring CMainFrame::getLogFileName()
 
 void CMainFrame::OnStart()
 {
-	/*DB m_DB;
-	m_DB.OnInitADOConn();*/
 
 	HTTPSTARTDESC startDesc;
 	memset(&startDesc, 0, sizeof(HTTPSTARTDESC));
@@ -290,6 +288,36 @@ void CMainFrame::OnStart()
 	startDesc.nMaxClientConn = AfxGetApp()->GetProfileInt(INI_SESSION, _T("MaxClientConnections"), 0);
 	CString strDefName = AfxGetApp()->GetProfileString(INI_SESSION, _T("DefaultFileName"), _T("index.html,index.htm,default.html,default.htm"));
 	_tcsncpy(startDesc.szDefaultFileName, (LPCTSTR)strDefName, MAX_PATH);
+
+
+	DBConfig struDBCof;
+	struDBCof.strDSN = WtoA(AfxGetApp()->GetProfileString(INI_SESSION, _T("DSN"), _T("MySql")));
+	struDBCof.strServer = WtoA(AfxGetApp()->GetProfileString(INI_SESSION, _T("Server"), _T("localhost")));
+	struDBCof.strDataBase = WtoA(AfxGetApp()->GetProfileString(INI_SESSION, _T("Srouce"), _T("methane-detection-system")));
+	struDBCof.strUserName = WtoA(AfxGetApp()->GetProfileString(INI_SESSION, _T("UserName"), _T("root")));
+	struDBCof.strPassWd = WtoA(AfxGetApp()->GetProfileString(INI_SESSION, _T("PassWd"), _T("cjlu12345+")));
+
+	DB::SetDBConfig(struDBCof);
+
+	//std::string strDSN;
+	//std::string strServer;
+	//std::string strDataBase;
+	//std::string strUserName;
+	//std::string strPassWd;
+
+	//CString strSpeed = AfxGetApp()->GetProfileString(INI_SESSION, _T("MaxSpeed"), _T("0"));
+
+	//AfxGetApp()->WriteProfileString(INI_SESSION, _T("DSN"), m_strDSN);
+	//AfxGetApp()->WriteProfileString(INI_SESSION, _T("Server"), m_strServer);
+	//AfxGetApp()->WriteProfileString(INI_SESSION, _T("Srouce"), m_strSrouce);
+	//AfxGetApp()->WriteProfileString(INI_SESSION, _T("UserName"), m_strUserName);
+	//AfxGetApp()->WriteProfileString(INI_SESSION, _T("PassWd"), m_strPassWd);
+	//, m_strDSN(_T("MySql"))
+	//	, m_strServer(_T("localhost"))
+	//	, m_strSrouce(_T("methane-detection-system"))
+	//	, m_strUserName(_T("root"))
+	//	, m_strPassWd(_T("cjlu12345+"))
+
 
 
 	//…Ë÷√Tcp Server Port

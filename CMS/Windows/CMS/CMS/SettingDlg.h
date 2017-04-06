@@ -26,6 +26,15 @@ public:
 	BOOL m_bAutoLaunch;
 	BOOL m_bAutoRun;
 	CString m_strRoot;
+
+	//db info
+	CString m_strDSN;
+	CString m_strServer;
+	CString m_strSrouce;
+	CString m_strUserName;
+	CString m_strPassWd;
+	//
+
 	int m_nPort;
 	int m_nDevPort;
 	BOOL m_bListFile;
@@ -43,4 +52,5 @@ public:
 	CButton m_chkListDir;
 	CEdit m_edtDftFileName;
 	afx_msg void OnBnClickedCheck5();
+	afx_msg void OnEnChangeEdit5();
 };

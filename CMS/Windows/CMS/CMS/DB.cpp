@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "DB.h"
 
+DBConfig DbTmp;
+DBConfig DB::m_dbConfig = DbTmp;
 
 DB::DB()
 {
@@ -35,6 +37,13 @@ void DB::Fini(void)
 
 }
 
+bool DB::SetDBConfig(DBConfig strDBInfo)
+{
+	m_dbConfig = strDBInfo;
+	return true;
+}
+
+
 void  DB::OnInitADOConn()
 {
 	// 初始化OLE/COM库环境 
@@ -50,7 +59,8 @@ void  DB::OnInitADOConn()
 			m_pConnection->ConnectionTimeout = 600;//设置连接超时时间
 			m_pConnection->CommandTimeout = 120;//设置执行命令超时时间
 
-			m_pConnection->Open("DSN=MySql;Server=localhost;Database=methane-detection-system", "root", "chen77..", adModeUnknown);
+			std::string strCon = "DSN=" + m_dbConfig.strDSN + ";Server=" + m_dbConfig.strServer + ";Database=" + m_dbConfig.strDataBase;
+			m_pConnection->Open(strCon.c_str(), m_dbConfig.strUserName.c_str() , m_dbConfig.strPassWd.c_str() , adModeUnknown);
 		}
 	}
 	// 捕捉异常

@@ -243,5 +243,12 @@ typedef struct tagHTTPServerStartDesc
 
 	//Dev Info
 	int nDevPort;
+
+	//BD Info
+	std::string strDSN;
+	std::string strServer;
+	std::string strDataBase;
+	std::string strUserName;
+	std::string strPassWd;
 }HTTPSTARTDESC, *PHTTPSTARTDESC;
 

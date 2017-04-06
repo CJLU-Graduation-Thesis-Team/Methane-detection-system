@@ -106,7 +106,7 @@ std::wstring CHTTPRequest::GetUrlObject()
 	if(pStart == NULL) return strObject;
 
 	// 从第一行的末尾方向查找第一个空格,实例: GET / HTTP/1.1
-	pEnd = strstr(lpszRequest, "\r\n"); ASSERT(pEnd);
+ 	pEnd = strstr(lpszRequest, "\r\n"); ASSERT(pEnd);
 	if(pEnd == NULL || pEnd < pStart) return strObject;
 	while(pEnd >= pStart)
 	{
