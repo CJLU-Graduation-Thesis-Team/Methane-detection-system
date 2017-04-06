@@ -40,7 +40,7 @@ bool CHTTPWork::Login(std::string strName, std::string strPwd, std::string&  str
 	if (vSql_ID.vt == VT_EMPTY || vSql_ID.vt == VT_NULL)//用户不存在
 	{
 		//生成返回包数据
-		Xml.SetDoc(_T("<?xml version='1.0' encoding='UTF-8'?>")); \
+		Xml.SetDoc(_T("<?xml version='1.0' encoding='UTF-8'?> \n\r")); \
 			Xml.AddElem(_T("Dec"), _T("UserName is not Exist") );
 		Xml.AddElem(_T("Ret"), 201);
 		strRetXml = WtoA(Xml.GetDoc());
@@ -68,7 +68,7 @@ bool CHTTPWork::Login(std::string strName, std::string strPwd, std::string&  str
 		}
 
 
-		Xml.SetDoc(_T("<?xml version='1.0' encoding='UTF-8'?>"));
+		Xml.SetDoc(_T("<?xml version='1.0' encoding='UTF-8'?> \n\r"));
 		Xml.AddElem(_T("Root"));
 		Xml.IntoElem();
 
@@ -124,7 +124,7 @@ bool CHTTPWork::GetDeviceList(std::string strName, std::string& strRetXml)
 	}
 
 
-	Xml.SetDoc(_T("<?xml version='1.0' encoding='UTF-8'?> \n"));
+	Xml.SetDoc(_T("<?xml version='1.0' encoding='UTF-8'?> \n\r"));
 	Xml.AddElem(_T("Root"));
 	Xml.IntoElem();
 
@@ -224,7 +224,7 @@ bool CHTTPWork::GetDeviceStatus(std::string  strDeviceSn, std::string&  strRetXm
 	m_pRecordset = m_DBManger.GetRecordSet(m_cstrSql.GetBuffer());
 
 
-	Xml.SetDoc(_T("<?xml version='1.0' encoding='UTF-8'?>"));
+	Xml.SetDoc(_T("<?xml version='1.0' encoding='UTF-8'?> \n\r"));
 	Xml.AddElem(_T("Root"));
 	Xml.IntoElem();
 
@@ -301,7 +301,7 @@ bool CHTTPWork::SetDeviceThreshold(std::string   strDeviceSn, std::string  strdS
 		AfxMessageBox(e.Description());
 	}
 
-	Xml.SetDoc(_T("<?xml version='1.0' encoding='UTF-8'?>"));
+	Xml.SetDoc(_T("<?xml version='1.0' encoding='UTF-8'?> \n\r"));
 	Xml.AddElem(_T("Root"));
 	Xml.IntoElem();
 
@@ -355,7 +355,7 @@ bool CHTTPWork::AddDevice(std::string strName, std::string  strDeviceSn, std::st
 		AfxMessageBox(e.Description());
 	}
 
-	Xml.SetDoc(_T("<?xml version='1.0' encoding='UTF-8'?>"));
+	Xml.SetDoc(_T("<?xml version='1.0' encoding='UTF-8'?> \n\r"));
 	Xml.AddElem(_T("Root"));
 	Xml.IntoElem();
 
@@ -408,7 +408,7 @@ bool CHTTPWork::AddUser(std::string strName, std::string strPwd,std::string& str
 		AfxMessageBox(e.Description());
 	}
 
-	Xml.SetDoc(_T("<?xml version='1.0' encoding='UTF-8'?>"));
+	Xml.SetDoc(_T("<?xml version='1.0' encoding='UTF-8'?> \n\r"));
 	Xml.AddElem(_T("Root"));
 	Xml.IntoElem();
 
