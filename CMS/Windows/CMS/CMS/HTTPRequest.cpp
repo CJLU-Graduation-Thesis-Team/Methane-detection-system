@@ -182,10 +182,13 @@ std::wstring CHTTPRequest::GetUrlObject()
 bool CHTTPRequest::GetUrlData(HTTP_METHOD enumMetMod , std::wstring wstrUrlObject, std::vector<std::string>& vecRetData)
 {
 
+	LOGGER_CINFO(theLogger, _T("解析请求头信息 原始数据 Data[%s].\r\n"), UTF8toW(m_pData).c_str());
+
 	switch (enumMetMod)
 	{
 		case METHOD_POST:
 		{
+		
 			// 两个连续的换行应该在请求头的最后
 			char* pszDataStartTag = strstr(m_pData, "\r\n\r\n");
 			if (pszDataStartTag == NULL)
@@ -194,6 +197,14 @@ bool CHTTPRequest::GetUrlData(HTTP_METHOD enumMetMod , std::wstring wstrUrlObjec
 			}
 			//请求数据值
 			std::string strDataTmp = pszDataStartTag + 4 ;
+
+			//记录收到的请求头信息
+			LOGGER_CINFO(theLogger, _T("POST请求头Data[%s].\r\n"), UTF8toW(strDataTmp).c_str()  );
+
+			if (strDataTmp.empty())
+			{
+				return false;
+			}
 
 			if (!wstrUrlObject.compare(_T("/Main/AddUser")))
 			{
@@ -307,16 +318,27 @@ bool CHTTPRequest::GetUrlData(HTTP_METHOD enumMetMod , std::wstring wstrUrlObjec
 				}
 			}
 
+			//记录收到的请求头信息
+			LOGGER_CINFO(theLogger, _T("GET请求头Data[%s].\r\n"), UTF8toW(strDataTmp).c_str());
+
+			if (strDataTmp.empty())
+			{
+				return false;
+			}
+
 			if (!wstrUrlObject.compare(_T("/Login")))
 			{
+
+
 				int nPosName, nPosPassWd, nPosAnd;
 				nPosName = strDataTmp.find("UserName") + sizeof("UserName");  //字符串末尾有‘\0’ 直接相加 相当与加上=
 				nPosPassWd = strDataTmp.find("PassWd") + sizeof("PassWd");
 				nPosAnd = strDataTmp.find('&');
 
 				std::string strUserName, strPassWd;
-				strUserName = strDataTmp.substr(nPosName, (nPosAnd - nPosName));
-				strPassWd = strDataTmp.substr(nPosPassWd, strDataTmp.length() - nPosPassWd);
+
+				strPassWd = strDataTmp.substr(nPosPassWd, (nPosAnd - nPosPassWd));
+				strUserName = strDataTmp.substr(nPosName, strDataTmp.length() - nPosName);
 
 				vecRetData.push_back(strUserName);
 				vecRetData.push_back(strPassWd);
