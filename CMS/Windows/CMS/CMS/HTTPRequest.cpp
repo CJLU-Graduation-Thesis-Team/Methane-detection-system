@@ -188,15 +188,80 @@ bool CHTTPRequest::GetUrlData(HTTP_METHOD enumMetMod , std::wstring wstrUrlObjec
 	{
 		case METHOD_POST:
 		{
-		
-			// 两个连续的换行应该在请求头的最后
-			char* pszDataStartTag = strstr(m_pData, "\r\n\r\n");
-			if (pszDataStartTag == NULL)
+
+			std::wstring strObject(L"");
+			const char* lpszRequest = m_pData;
+			const char *pStart = NULL, *pEnd = NULL;
+
+			// 第一行的第一个空格的下一个字符开始是请求的文件名开始.
+			for (int i = 0; i < m_nPos; ++i)
 			{
-				return FALSE;
+				if (lpszRequest[i] == ' ')
+				{
+					pStart = lpszRequest + i + 1;
+					break;
+				}
+				if (lpszRequest[i] == '\n') break;
 			}
-			//请求数据值
-			std::string strDataTmp = pszDataStartTag + 4 ;
+			if (pStart == NULL)
+			{
+				return false;
+			}
+
+			// 从第一行的末尾方向查找第一个空格,实例: GET / HTTP/1.1
+			pEnd = strstr(lpszRequest, "\r\n"); ASSERT(pEnd);
+			if (pEnd == NULL || pEnd < pStart)
+			{
+				return false;
+			}
+
+			while (pEnd >= pStart)
+			{
+				if (pEnd[0] == ' ')
+				{
+					pEnd--;
+					break;
+				}
+				pEnd--;
+			}
+
+			if (pEnd == NULL || pEnd < pStart)
+			{
+				return false;
+			}
+
+			// 已经取到了开始和结束的位置
+			int nObjectLen = pEnd - pStart + 1;
+			char *pszObject = new char[nObjectLen + 1]; ASSERT(pszObject);
+			ZeroMemory(pszObject, nObjectLen + 1);
+
+			// UTF8解码
+			//获取请求的Data部分
+			std::string strDataTmp;
+			for (int i = 0; i < nObjectLen; ++i)
+			{
+				if (pStart[i] == '?')
+				{
+					// '?' 后面是参数,忽略.
+					//
+					int nDataLen = nObjectLen - i - 1;  //不包含？ 号
+					char *pszUrlData = new char[nDataLen + 1]; ASSERT(pszUrlData);
+					ZeroMemory(pszUrlData, nDataLen + 1);
+					memcpy(pszUrlData, pStart + i + 1, nDataLen);
+					strDataTmp = pszUrlData;
+					delete[] pszUrlData;
+					break;
+				}
+			}
+		
+			//// 两个连续的换行应该在请求头的最后
+			//char* pszDataStartTag = strstr(m_pData, "\r\n\r\n");
+			//if (pszDataStartTag == NULL)
+			//{
+			//	return FALSE;
+			//}
+			////请求数据值
+			//std::string strDataTmp = pszDataStartTag + 4 ;
 
 			//记录收到的请求头信息
 			LOGGER_CINFO(theLogger, _T("POST请求头Data[%s].\r\n"), UTF8toW(strDataTmp).c_str()  );

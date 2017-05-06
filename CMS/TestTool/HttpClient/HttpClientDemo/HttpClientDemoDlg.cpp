@@ -208,10 +208,21 @@ void CHttpClientDemoDlg::OnBnClickedBtnReg()
 	
 	UserName : xxxx &PassWd : xxxx */
 
-	strReqTmp = "POST /Main/AddUser HTTP/1.0";
+	//strReqTmp = "POST /Main/AddUser HTTP/1.0";
+	//strReqTmp += "\r\n Content-Type: text/html; charset=UTF-8";
+	//strReqTmp += "\r\n\r\n";
+	//strReqTmp += "UserName:" + WtoA(cStrUserName.GetBuffer()) + "&PassWd:" + WtoA(cStrPassWd.GetBuffer());
+
+
+	/*POST / Main/AddUser?UserName : xxxx &PassWd : xxxx    HTTP / 1.0
+
+	Content - Type : text / html; charset = UTF - 8 */
+
+	strReqTmp = "POST /Main/AddUser?UserName" + WtoA(cStrUserName.GetBuffer()) + "&PassWd:" + WtoA(cStrPassWd.GetBuffer()) + " HTTP/1.0";
+	//strReqTmp += "UserName:" + WtoA(cStrUserName.GetBuffer()) + "&PassWd:" + WtoA(cStrPassWd.GetBuffer());
 	strReqTmp += "\r\n Content-Type: text/html; charset=UTF-8";
 	strReqTmp += "\r\n\r\n";
-	strReqTmp += "UserName:" + WtoA(cStrUserName.GetBuffer()) + "&PassWd:" + WtoA(cStrPassWd.GetBuffer());
+	//strReqTmp += "UserName:" + WtoA(cStrUserName.GetBuffer()) + "&PassWd:" + WtoA(cStrPassWd.GetBuffer());
 
 
 	strReqHttpMsg = strReqTmp;
