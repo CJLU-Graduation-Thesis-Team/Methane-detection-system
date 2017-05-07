@@ -438,3 +438,56 @@ bool CHTTPWork::AddUser(std::string strName, std::string strPwd,std::string& str
 
 	return true;
 }
+
+bool CHTTPWork::AddDevData(std::string strDevSn, std::string strAdcData , double  dRealData, std::string&  strRetXml )
+{
+	CMarkup Xml;
+
+
+	Xml.SetDoc(_T("<?xml version='1.0' encoding='UTF-8'?> \n\r"));
+	Xml.AddElem(_T("Root"));
+	Xml.IntoElem();
+
+	m_cstrSql.Format(_T("INSERT  INTO data(nDevId, nAdcData, dRealData) VALUES((SELECT ID FROM device WHERE strSN = '%s'),  %d,  %f)"), AtoW(strDevSn.c_str()).c_str(), atoi(strAdcData.c_str()) , dRealData);
+
+	if (!m_DBManger.ExecuteSQL(m_cstrSql.GetBuffer()))
+	{//操作执行失败
+		LOGGER_CERROR(theLogger, _T("插入设备检测数据失败.\r\n"), GetLastError());
+		Xml.AddElem(_T("Dec"), _T("Insert Test Data Failled"));
+		Xml.AddElem(_T("Ret"), 200);
+		strRetXml = WtoA(Xml.GetDoc());
+		return false;
+	}
+	//生成返回包数据
+	Xml.AddElem(_T("Dec"), _T("Insert Test Data  Ok"));
+	Xml.AddElem(_T("Ret"), 201);
+
+
+	//if (vSql_ID.vt == VT_EMPTY || vSql_ID.vt == VT_NULL)//用户不存在
+	//{
+	//	//添加用户
+	//	m_cstrSql.Format(_T("INSERT INTO user  (strUserName , strPassWd)  VALUES ('%s'  , '%s')"), AtoW(strName.c_str()).c_str(), AtoW(strPwd.c_str()).c_str());
+	//	if (!m_DBManger.ExecuteSQL(m_cstrSql.GetBuffer()))
+	//	{//操作执行失败
+	//		LOGGER_CERROR(theLogger, _T("注册用户失败.\r\n"), GetLastError());
+	//		Xml.AddElem(_T("Dec"), _T("Register Failled"));
+	//		Xml.AddElem(_T("Ret"), 200);
+	//		strRetXml = WtoA(Xml.GetDoc());
+	//		return false;
+	//	}
+	//	//生成返回包数据
+	//	Xml.AddElem(_T("Dec"), _T("Register Ok"));
+	//	Xml.AddElem(_T("Ret"), 201);
+	//}
+	//else //用户已经存在
+	//{
+	//	Xml.AddElem(_T("Dec"), _T("UserName is Exist"));
+	//	Xml.AddElem(_T("Ret"), 200);
+	//}
+
+
+	strRetXml = WtoA(Xml.GetDoc());
+
+
+	return true;
+}

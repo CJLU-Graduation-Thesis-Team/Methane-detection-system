@@ -31,6 +31,9 @@ public:
 
 	bool AddUser(std::string strName, std::string strPwd, std::string&  strRetXml);
 
+	//Dev
+	bool AddDevData(std::string strDevSn ,std::string strAdcData , double  dRealData, std::string&  strRetXml);
+
 private:
 	DB m_DBManger;  //数据库操作类
 	_RecordsetPtr m_pRecordset;  //返回结果指针

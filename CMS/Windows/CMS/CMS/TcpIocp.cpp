@@ -518,6 +518,56 @@ bool CIOCPModel::_DoAccpet( PER_SOCKET_CONTEXT* pSocketContext, PER_IO_CONTEXT* 
 	LOGGER_CINFO(theLogger, _T("甲烷检测装置  %s:%d 信息：%s ..\r\n"), wsDevIp.c_str(), nDevPort, wsBuf.c_str() ) ;
 
 
+	//处理 设备上传的数据 存储到数据库中
+	//DevSn:XXXXX AdcData:XXX 
+	std::wstring wstrDevSend;
+	wstrDevSend = wsBuf.c_str();
+
+	std::string strDevSend;
+	strDevSend = WtoUTF8(wstrDevSend);
+
+	int nPosDevSn, nPosAdcData;
+	nPosDevSn = strDevSend.find("DevSn:") + sizeof("DevSn:") - 1 ;  //字符串末尾有‘\0’ 直接相加 相当与加上=
+	nPosAdcData = strDevSend.find("AdcData:") + sizeof("AdcData:") -1 ;
+
+	std::string strDevSn, strAdcData;
+	strDevSn = strDevSend.substr(nPosDevSn, (nPosAdcData - nPosDevSn -(sizeof("AdcData:") - 1) ));
+	strAdcData = strDevSend.substr(nPosAdcData, strDevSend.length());
+
+
+	// 计算实际的检测值
+	double dRealValData;
+	dRealValData = atof(strAdcData.c_str()) / 255.0 * 5.0 ;     //实际电压值
+
+	double dRealTestData;
+	dRealTestData = dRealValData * 1;
+
+
+	// 数据库操作类
+	std::string strRetXml;
+	bool  bAddData = false;
+
+	{
+		CHTTPWork cHttpWork;
+		if (strDevSn.empty() != 1)
+		{
+			bAddData = cHttpWork.AddDevData(strDevSn, strAdcData, dRealTestData, strRetXml);
+		}
+		else
+		{
+			LOGGER_CINFO(theLogger, _T("设备上传的数据 没有SN码 ..\r\n"));
+		}
+	}
+
+	if (bAddData)
+	{
+		LOGGER_CINFO(theLogger, _T("插入数据成功.\r\n"));
+	}
+	else
+	{
+		LOGGER_CINFO(theLogger, _T("插入数据失败.\r\n"));
+	}
+
 	//////////////////////////////////////////////////////////////////////////////////////////////////////
 	// 2. 这里需要注意，这里传入的这个是ListenSocket上的Context，这个Context我们还需要用于监听下一个连接
 	// 所以我还得要将ListenSocket上的Context复制出来一份为新连入的Socket新建一个SocketContext
@@ -595,7 +645,56 @@ bool CIOCPModel::_DoRecv( PER_SOCKET_CONTEXT* pSocketContext, PER_IO_CONTEXT* pI
 
 	LOGGER_CINFO(theLogger, _T("设备连接线程收到 %s:%d 信息：%s..\r\n"), (AtoW(inet_ntoa(ClientAddr->sin_addr))).c_str() , ntohs(ClientAddr->sin_port),  (AtoW(pIoContext->m_wsaBuf.buf)).c_str() ) ;
 
-//	this->_ShowMessage( _T("收到  %s:%d 信息：%s"),inet_ntoa(ClientAddr->sin_addr), ntohs(ClientAddr->sin_port),pIoContext->m_wsaBuf.buf );
+	//处理 设备上传的数据 存储到数据库中
+	//DevSn:XXXXX AdcData:XXX 
+	//std::wstring wstrDevSend;
+	//wstrDevSend = m_wsaBuf.buf.c_str();
+
+	std::string strDevSend = pIoContext->m_wsaBuf.buf;
+	//strDevSend = WtoUTF8(wstrDevSend);
+
+	int nPosDevSn, nPosAdcData;
+	nPosDevSn = strDevSend.find("DevSn:") + sizeof("DevSn:") - 1;  //字符串末尾有‘\0’ 直接相加 相当与加上=
+	nPosAdcData = strDevSend.find("AdcData:") + sizeof("AdcData:") - 1;
+
+	std::string strDevSn, strAdcData;
+	strDevSn = strDevSend.substr(nPosDevSn, (nPosAdcData - nPosDevSn - (sizeof("AdcData:") - 1)));
+	strAdcData = strDevSend.substr(nPosAdcData, strDevSend.length());
+
+
+	// 计算实际的检测值
+	double dRealValData;
+	dRealValData = atof(strAdcData.c_str()) / 255.0 * 5.0;     //实际电压值
+
+	double dRealTestData;
+	dRealTestData = dRealValData * 1;
+
+
+	// 数据库操作类
+	std::string strRetXml;
+	bool  bAddData = false;
+
+	{
+		CHTTPWork cHttpWork;
+		if (strDevSn.empty() != 1)
+		{
+			bAddData = cHttpWork.AddDevData(strDevSn, strAdcData, dRealTestData, strRetXml);
+		}
+		else
+		{
+			LOGGER_CINFO(theLogger, _T("设备上传的数据 没有SN码 ..\r\n"));
+		}
+	}
+
+	if (bAddData)
+	{
+		LOGGER_CINFO(theLogger, _T("插入数据成功.\r\n"));
+	}
+	else
+	{
+		LOGGER_CINFO(theLogger, _T("插入数据失败.\r\n"));
+	}
+
 
 	// 然后开始投递下一个WSARecv请求
 	return _PostRecv( pIoContext );
