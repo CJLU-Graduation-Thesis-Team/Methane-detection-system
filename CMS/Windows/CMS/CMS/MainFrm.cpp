@@ -124,6 +124,9 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		m_wndStatusBar.SetPaneInfo(3, ID_STATUS_SPEED_DOWN, SBPS_NORMAL, 100);
 	}
 
+	//不显示 状态栏
+	m_wndStatusBar.HideCaret();
+
 	// 设置图标
 	SetIcon(m_hIcon, TRUE);
 
