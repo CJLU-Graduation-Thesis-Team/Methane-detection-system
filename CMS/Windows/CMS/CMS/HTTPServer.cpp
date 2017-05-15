@@ -10,6 +10,7 @@
 #include "HTTPResponse.h"
 #include "HTTPContent.h"
 #include "HTTPWork.h"
+#include "Logger.h"
 
 #ifdef _DEBUG
 #undef THIS_FILE
@@ -1485,6 +1486,9 @@ exit:
 		pContent->WriteString(strRetXml.c_str());
 		pSockInf->pResponse->AttachContent(pContent);
 		pSockInf->pResponse->CookResponseWithXMl(strRetXml);
+
+		//LOGGER_CINFO(theLogger, _T("返回客户端 Data[%s].\r\n"), UTF8toW(pSockInf->pResponse->getDataPtr(pContent)).c_str());
+
 	}
 	else  //出现错误
 	{

@@ -27,6 +27,7 @@
 #define IDC_EDIT12                      1016
 #define IDC_EDIT13                      1017
 #define IDC_EDIT14                      1018
+#define IDC_CHECK6                      1019
 #define ID_32771                        32771
 #define ID_32772                        32772
 #define ID_32773                        32773

@@ -12,6 +12,7 @@ IMPLEMENT_DYNAMIC(CSettingDlg, CDialog)
 CSettingDlg::CSettingDlg(CWnd* pParent /*=NULL*/)
 	: CDialog(CSettingDlg::IDD, pParent)
 	, m_bAutoLaunch(FALSE)
+	, m_bRetJson(TRUE)
 	, m_bAutoRun(FALSE)
 	, m_strRoot(_T(""))
 	, m_strDSN(_T("MySql"))
@@ -43,6 +44,7 @@ void CSettingDlg::DoDataExchange(CDataExchange* pDX)
 	CDialog::DoDataExchange(pDX);
 	DDX_Check(pDX, IDC_CHECK2, m_bAutoLaunch);
 	DDX_Check(pDX, IDC_CHECK1, m_bAutoRun);
+	DDX_Check(pDX, IDC_CHECK6, m_bRetJson);
 	DDX_Text(pDX, IDC_EDIT1, m_strRoot);
 	DDX_Text(pDX, IDC_EDIT10, m_strDSN);
 	DDX_Text(pDX, IDC_EDIT11, m_strServer);
@@ -98,6 +100,8 @@ void CSettingDlg::OnBnClickedOk()
 	AfxGetApp()->WriteProfileString(INI_SESSION, _T("DefaultFileName"), m_strDefName);
 	AfxGetApp()->WriteProfileString(INI_SESSION, _T("Root"), m_strRoot);
 
+
+
 	AfxGetApp()->WriteProfileString(INI_SESSION, _T("DSN"), m_strDSN);
 	AfxGetApp()->WriteProfileString(INI_SESSION, _T("Server"), m_strServer);
 	AfxGetApp()->WriteProfileString(INI_SESSION, _T("Srouce"), m_strSrouce);
@@ -105,6 +109,8 @@ void CSettingDlg::OnBnClickedOk()
 	AfxGetApp()->WriteProfileString(INI_SESSION, _T("PassWd"), m_strPassWd);
 
 
+	
+	AfxGetApp()->WriteProfileInt(INI_SESSION, _T("RetJson"), m_bRetJson);
 	AfxGetApp()->WriteProfileInt(INI_SESSION, _T("Port"), m_nPort);
 	AfxGetApp()->WriteProfileInt(INI_SESSION, _T("DevPort"), m_nDevPort);
 	AfxGetApp()->WriteProfileInt(INI_SESSION, _T("MaxConnections"), m_nMaxConn);
@@ -147,6 +153,8 @@ BOOL CSettingDlg::OnInitDialog()
 	
 	m_bAutoLaunch = IsAutoLaunch();
 	m_bAutoRun = AfxGetApp()->GetProfileInt(INI_SESSION, _T("AutoRun"), 0);
+	m_bRetJson = AfxGetApp()->GetProfileInt(INI_SESSION, _T("RetJson"), 1);
+
 	m_bDisableScreenLog = AfxGetApp()->GetProfileInt(INI_SESSION, _T("DisableScreenLog"), 0);
 	m_bDisableFileLog = AfxGetApp()->GetProfileInt(INI_SESSION, _T("DisableFileLog"), 0);
 	m_bListFile = AfxGetApp()->GetProfileInt(INI_SESSION, _T("ListFile"), 1);

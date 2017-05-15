@@ -43,6 +43,10 @@ bool DB::SetDBConfig(DBConfig strDBInfo)
 	return true;
 }
 
+BOOL DB::RetJsonSet()
+{
+	return m_dbConfig.bRetJson;
+}
 
 void  DB::OnInitADOConn()
 {

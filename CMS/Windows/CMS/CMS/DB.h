@@ -8,6 +8,7 @@ typedef   struct   DBInfo
 	std::string strDataBase;
 	std::string strUserName;
 	std::string strPassWd;
+	BOOL bRetJson;
 
 	DBInfo()
 	{
@@ -16,6 +17,7 @@ typedef   struct   DBInfo
 		strDataBase = "methane-detection-system";
 		strUserName = "root";
 		strPassWd = "cjlu12345+";
+		bRetJson = TRUE;
 	}
 } DBConfig;
 
@@ -34,6 +36,7 @@ public:
 	void Fini(void);
 
 	static bool SetDBConfig(DBConfig strDBInfo);
+	BOOL RetJsonSet();
 
 private:
 	static DBConfig m_dbConfig;

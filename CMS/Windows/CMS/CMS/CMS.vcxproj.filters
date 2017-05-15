@@ -107,6 +107,9 @@
     <ClInclude Include="Markup.h">
       <Filter>XML</Filter>
     </ClInclude>
+    <ClInclude Include="Json\include\json.h">
+      <Filter>Json</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
@@ -147,6 +150,9 @@
     </Filter>
     <Filter Include="XML">
       <UniqueIdentifier>{a3eb5c0e-0682-4145-9b2a-62785d595a44}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Json">
+      <UniqueIdentifier>{f6858bc5-77fd-4192-9816-b25caf32e620}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

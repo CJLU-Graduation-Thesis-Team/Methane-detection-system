@@ -27,6 +27,8 @@ public:
 	BOOL m_bAutoRun;
 	CString m_strRoot;
 
+	BOOL m_bRetJson;
+
 	//db info
 	CString m_strDSN;
 	CString m_strServer;

@@ -49,6 +49,19 @@ void CHTTPResponse::AttachContent(CHTTPContent *pContent)
 	m_pContent = pContent;
 }
 
+
+char* CHTTPResponse::getDataPtr(CHTTPContent *pContent)
+{
+	ASSERT(pContent);
+	if (m_pContent != NULL)
+	{
+		m_pContent->Close();
+		delete m_pContent;
+		ASSERT(0);
+	}
+	return m_pData;
+}
+
 HTTP_METHOD CHTTPResponse::SetMethod(HTTP_METHOD mh)
 {
 	HTTP_METHOD mh_old = m_Method;
@@ -148,15 +161,15 @@ BOOL CHTTPResponse::CookResponseWithXMl(std::string strRetXMl)
 
 		// Content-Type
 		strcat(m_pData, "Content-Type: ");
-		strcat(m_pData, "text / plain" );
+		strcat(m_pData, "application/json" );
 		strcat(m_pData, "\r\n");
 
 		// Content-Length
-		char szLen[200] = { 0 };
+	/*	char szLen[200] = { 0 };
 		__int64 lLen = strRetXMl.length();
 		strcat(m_pData, "Content-Length: ");
 		strcat(m_pData, _i64toa(lLen, szLen, 10));
-		strcat(m_pData, "\r\n");
+		strcat(m_pData, "\r\n");*/
 
 		//// Content-Range: bytes %d-%d/%d\r\n"
 		//if (SC_PARTIAL == GetServerCode())
@@ -173,7 +186,7 @@ BOOL CHTTPResponse::CookResponseWithXMl(std::string strRetXMl)
 	}
 
 	// "Accept-Ranges: bytes" 支持断点续传.
-	strcat(m_pData, "Accept-Ranges: bytes\r\n");
+	//strcat(m_pData, "Accept-Ranges: bytes\r\n");
 
 	// 只支持 GET 和 POST 方法
 	if (GetServerCode() == SC_BADMETHOD)
@@ -184,14 +197,17 @@ BOOL CHTTPResponse::CookResponseWithXMl(std::string strRetXMl)
 	// XServer
 	strcat(m_pData, "Server: Chenguangle HTTP Server/1.5\r\n");
 
-	// connection,并结束
-	strcat(m_pData, "Connection: close\r\n\r\n");
+	// ＜blank line＞
+	strcat(m_pData, "\r\n");
 
-	// 客户端是否只要求响应头.
-	if (m_Method == METHOD_HEAD)
-	{
-		m_pContent->Close();
-	}
+	// connection,并结束
+	//strcat(m_pData, "Connection: close\r\n\r\n");
+
+	//// 客户端是否只要求响应头.
+	//if (m_Method == METHOD_HEAD)
+	//{
+	//	m_pContent->Close();
+	//}
 
 	// 计算响应头的长度
 	m_nHeaderSize = strlen(m_pData);

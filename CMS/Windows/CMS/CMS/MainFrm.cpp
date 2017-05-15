@@ -299,6 +299,7 @@ void CMainFrame::OnStart()
 	struDBCof.strDataBase = WtoA(AfxGetApp()->GetProfileString(INI_SESSION, _T("Srouce"), _T("methane-detection-system")));
 	struDBCof.strUserName = WtoA(AfxGetApp()->GetProfileString(INI_SESSION, _T("UserName"), _T("root")));
 	struDBCof.strPassWd = WtoA(AfxGetApp()->GetProfileString(INI_SESSION, _T("PassWd"), _T("cjlu12345+")));
+	struDBCof.bRetJson = AfxGetApp()->GetProfileInt(INI_SESSION, _T("RetJson"), TRUE);
 
 	DB::SetDBConfig(struDBCof);
 

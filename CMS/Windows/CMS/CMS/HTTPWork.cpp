@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "HTTPWork.h"
+#include "json.h"
 
 
 CHTTPWork::CHTTPWork()
@@ -40,10 +41,24 @@ bool CHTTPWork::Login(std::string strName, std::string strPwd, std::string&  str
 	if (vSql_ID.vt == VT_EMPTY || vSql_ID.vt == VT_NULL)//用户不存在
 	{
 		//生成返回包数据
-		Xml.SetDoc(_T("<?xml version='1.0' encoding='UTF-8'?> \n\r")); \
-			Xml.AddElem(_T("Dec"), _T("UserName is not Exist") );
-		Xml.AddElem(_T("Ret"), 201);
-		strRetXml = WtoA(Xml.GetDoc());
+
+		//使用JSON返回数据
+		if (m_DBManger.RetJsonSet())
+		{
+			Json::Value jsonRoot;
+			Json::Value jsonItem;
+			jsonItem["Dec"] = "UserName is not Exist";
+			jsonItem["Ret"] = "201";
+			jsonRoot.append(jsonItem);
+			strRetXml = jsonRoot.toStyledString();
+		}
+		else
+		{
+			Xml.SetDoc(_T("<?xml version='1.0' encoding='UTF-8'?> \n\r")); \
+				Xml.AddElem(_T("Dec"), _T("UserName is not Exist"));
+			Xml.AddElem(_T("Ret"), 201);
+			strRetXml = WtoA(Xml.GetDoc());
+		}
 	}
 	else //用户已经存在
 	{
@@ -67,24 +82,45 @@ bool CHTTPWork::Login(std::string strName, std::string strPwd, std::string&  str
 			AfxMessageBox(e.Description());
 		}
 
-
-		Xml.SetDoc(_T("<?xml version='1.0' encoding='UTF-8'?> \n\r"));
-		Xml.AddElem(_T("Root"));
-		Xml.IntoElem();
-
-
 		if (vSql_PassID.vt == VT_EMPTY || vSql_PassID.vt == VT_NULL)//密码错误
 		{
-			Xml.AddElem(_T("Dec"), _T("Error Pwd"));
-			Xml.AddElem(_T("Ret"), 201);
-			strRetXml = WtoA(Xml.GetDoc());
+			//使用JSON返回数据
+			if (m_DBManger.RetJsonSet())
+			{
+				Json::Value jsonRoot;
+				Json::Value jsonItem;
+				jsonItem["Dec"] = "Error Pwd";
+				jsonItem["Ret"] = "202";
+				jsonRoot.append(jsonItem);
+				strRetXml = jsonRoot.toStyledString();
+			}
+			else
+			{
+				Xml.SetDoc(_T("<?xml version='1.0' encoding='UTF-8'?> \n\r")); \
+					Xml.AddElem(_T("Dec"), _T("Error Pwd"));
+				Xml.AddElem(_T("Ret"), 202);
+				strRetXml = WtoA(Xml.GetDoc());
+			}
 		}
 		else
 		{
-
-			Xml.AddElem(_T("Dec"), _T("Login Ok"));
-			Xml.AddElem(_T("Ret"), 200);
-			strRetXml = WtoA(Xml.GetDoc());
+			//使用JSON返回数据
+			if (m_DBManger.RetJsonSet())
+			{
+				Json::Value jsonRoot;
+				Json::Value jsonItem;
+				jsonItem["Dec"] = "Login Ok";
+				jsonItem["Ret"] = "200";
+				jsonRoot.append(jsonItem);
+				strRetXml = jsonRoot.toStyledString();
+			}
+			else
+			{
+				Xml.SetDoc(_T("<?xml version='1.0' encoding='UTF-8'?> \n\r")); \
+					Xml.AddElem(_T("Dec"), _T("Login Ok"));
+				Xml.AddElem(_T("Ret"), 200);
+				strRetXml = WtoA(Xml.GetDoc());
+			}
 		}
 	}
 
@@ -124,21 +160,27 @@ bool CHTTPWork::GetDeviceList(std::string strName, std::string& strRetXml)
 	}
 
 
-	Xml.SetDoc(_T("<?xml version='1.0' encoding='UTF-8'?> \n\r"));
-	Xml.AddElem(_T("Root"));
-	Xml.IntoElem();
 
-	if ( !vecDev.empty() )    //存在设备
+	if (m_DBManger.RetJsonSet())
 	{
-		Xml.AddElem(_T("Ret"), 200);
 
-		Xml.AddElem(_T("DevList"));
-		Xml.IntoElem();
+		Json::Value jsonRoot;
+		Json::Value arrayObj;
+		Json::Value jsonItem;
 
-		int nDevNum = vecDev.size();
-		for (int i = 0; i < nDevNum; i++)
+		if (!vecDev.empty())    //存在设备
 		{
-			m_cstrSql.Format(_T("SELECT\
+			jsonRoot["Ret"] = 200;
+
+		/*	Xml.AddElem(_T("Ret"), 200);
+
+			Xml.AddElem(_T("DevList"));
+			Xml.IntoElem();*/
+
+			int nDevNum = vecDev.size();
+			for (int i = 0; i < nDevNum; i++)
+			{
+				m_cstrSql.Format(_T("SELECT\
 				dat.dRealData, dev.dThresholdValue, dat.dRealData - dev.dThresholdValue as BoolValue\
 				FROM\
 				DATA dat\
@@ -146,59 +188,142 @@ bool CHTTPWork::GetDeviceList(std::string strName, std::string& strRetXml)
 				WHERE\
 				dat.nDevId = '%d'\
 				ORDER BY dat.id DESC LIMIT 1"), vecDev.at(i));
-			m_pRecordset = m_DBManger.GetRecordSet(m_cstrSql.GetBuffer());
-			if (m_pRecordset->adoEOF)  //没有查找到记录
-			{
-				Xml.AddElem(_T("Dev"));
-				Xml.AddAttrib(_T("Id"), i);
-				Xml.AddAttrib(_T("SN"), AtoW(vecDevSn.at(i)).c_str());
-				Xml.AddChildElem(_T("RealData"));
-			}
-			else
-			{
-				_variant_t  vSql_RealData;
-				vSql_RealData = m_pRecordset->GetCollect(_T("dRealData"));
-
-				_variant_t  vSql_ThresholdData;
-				vSql_ThresholdData = m_pRecordset->GetCollect(_T("dThresholdValue"));
-
-				_variant_t  vSql_BOOLData;
-				vSql_BOOLData = m_pRecordset->GetCollect(_T("BoolValue"));
-				BOOL bBoolBeyond;
-				bBoolBeyond = (BOOL)vSql_BOOLData;
-				if (bBoolBeyond > 0)
+				m_pRecordset = m_DBManger.GetRecordSet(m_cstrSql.GetBuffer());
+				if (m_pRecordset->adoEOF)  //没有查找到记录
 				{
-					bBoolBeyond = 1;
-				}
-				else if (bBoolBeyond < 0 )
-				{
-					bBoolBeyond = -1;
+					jsonItem["SN"] = vecDevSn.at(i).c_str();
+					arrayObj.append(jsonItem);
+
+					//Xml.AddElem(_T("Dev"));
+					//Xml.AddAttrib(_T("Id"), i);
+					//Xml.AddAttrib(_T("SN"), AtoW(vecDevSn.at(i)).c_str());
+					//Xml.AddChildElem(_T("RealData"));
 				}
 				else
 				{
+					_variant_t  vSql_RealData;
+					vSql_RealData = m_pRecordset->GetCollect(_T("dRealData"));
 
+					_variant_t  vSql_ThresholdData;
+					vSql_ThresholdData = m_pRecordset->GetCollect(_T("dThresholdValue"));
+
+					_variant_t  vSql_BOOLData;
+					vSql_BOOLData = m_pRecordset->GetCollect(_T("BoolValue"));
+					BOOL bBoolBeyond;
+					bBoolBeyond = (BOOL)vSql_BOOLData;
+					if (bBoolBeyond > 0)
+					{
+						bBoolBeyond = 1;
+					}
+					else if (bBoolBeyond < 0)
+					{
+						bBoolBeyond = -1;
+					}
+					else
+					{
+
+					}
+					jsonItem["SN"] = vecDevSn.at(i).c_str();
+					jsonItem["RealData"] = (double)vSql_RealData;
+					jsonItem["Threshold"] = (double)vSql_ThresholdData;
+					jsonItem["BoolBeyond"] = (BOOL)bBoolBeyond;
+					arrayObj.append(jsonItem);
+					//arrayObj["Dev"] = jsonItem;
 				}
 
-				Xml.AddElem(_T("Dev"));
-				Xml.AddAttrib(_T("Id"), i);
-				Xml.AddAttrib(_T("SN"), AtoW(vecDevSn.at(i)).c_str());
-				Xml.AddChildElem(_T("RealData"), vSql_RealData);
-				Xml.AddChildElem(_T("Threshold"), vSql_ThresholdData);
+				jsonRoot["DevList"] = arrayObj;
+			}
 
-				Xml.AddChildElem(_T("BoolBeyond"), bBoolBeyond);
+		}
+		else  //用户下没有设备
+		{
+
+			jsonRoot["Ret"] = 209;
+
+		//	Xml.AddElem(_T("Ret"), 202);
+
+		}
+		strRetXml = jsonRoot.toStyledString();
+		//strRetXml = WtoA(Xml.GetDoc());
+	}
+	else  //使用XML返回数据
+	{
+		Xml.SetDoc(_T("<?xml version='1.0' encoding='UTF-8'?> \n\r"));
+		Xml.AddElem(_T("Root"));
+		Xml.IntoElem();
+
+		if (!vecDev.empty())    //存在设备
+		{
+			Xml.AddElem(_T("Ret"), 200);
+
+			Xml.AddElem(_T("DevList"));
+			Xml.IntoElem();
+
+			int nDevNum = vecDev.size();
+			for (int i = 0; i < nDevNum; i++)
+			{
+				m_cstrSql.Format(_T("SELECT\
+				dat.dRealData, dev.dThresholdValue, dat.dRealData - dev.dThresholdValue as BoolValue\
+				FROM\
+				DATA dat\
+				LEFT JOIN device dev ON dev.id = dat.nDevId\
+				WHERE\
+				dat.nDevId = '%d'\
+				ORDER BY dat.id DESC LIMIT 1"), vecDev.at(i));
+				m_pRecordset = m_DBManger.GetRecordSet(m_cstrSql.GetBuffer());
+				if (m_pRecordset->adoEOF)  //没有查找到记录
+				{
+					Xml.AddElem(_T("Dev"));
+					Xml.AddAttrib(_T("Id"), i);
+					Xml.AddAttrib(_T("SN"), AtoW(vecDevSn.at(i)).c_str());
+					Xml.AddChildElem(_T("RealData"));
+				}
+				else
+				{
+					_variant_t  vSql_RealData;
+					vSql_RealData = m_pRecordset->GetCollect(_T("dRealData"));
+
+					_variant_t  vSql_ThresholdData;
+					vSql_ThresholdData = m_pRecordset->GetCollect(_T("dThresholdValue"));
+
+					_variant_t  vSql_BOOLData;
+					vSql_BOOLData = m_pRecordset->GetCollect(_T("BoolValue"));
+					BOOL bBoolBeyond;
+					bBoolBeyond = (BOOL)vSql_BOOLData;
+					if (bBoolBeyond > 0)
+					{
+						bBoolBeyond = 1;
+					}
+					else if (bBoolBeyond < 0)
+					{
+						bBoolBeyond = -1;
+					}
+					else
+					{
+
+					}
+
+					Xml.AddElem(_T("Dev"));
+					Xml.AddAttrib(_T("Id"), i);
+					Xml.AddAttrib(_T("SN"), AtoW(vecDevSn.at(i)).c_str());
+					Xml.AddChildElem(_T("RealData"), vSql_RealData);
+					Xml.AddChildElem(_T("Threshold"), vSql_ThresholdData);
+
+					Xml.AddChildElem(_T("BoolBeyond"), bBoolBeyond);
+
+				}
 
 			}
 
 		}
+		else  //用户下没有设备
+		{
+			Xml.AddElem(_T("Ret"), 202);
 
+		}
+
+		strRetXml = WtoA(Xml.GetDoc());
 	}
-	else  //用户下没有设备
-	{
-		Xml.AddElem(_T("Ret"), 202);
-
-	}
-
-	strRetXml = WtoA(Xml.GetDoc());
 
 	return true;
 }
@@ -224,54 +349,100 @@ bool CHTTPWork::GetDeviceStatus(std::string  strDeviceSn, std::string&  strRetXm
 	m_pRecordset = m_DBManger.GetRecordSet(m_cstrSql.GetBuffer());
 
 
-	Xml.SetDoc(_T("<?xml version='1.0' encoding='UTF-8'?> \n\r"));
-	Xml.AddElem(_T("Root"));
-	Xml.IntoElem();
 
-	if (m_pRecordset->adoEOF)  //没有查找到记录
+	if (m_DBManger.RetJsonSet())
 	{
-		Xml.AddElem(_T("Dev"));
-		Xml.AddAttrib(_T("SN"), AtoW(strDeviceSn).c_str());
-		Xml.AddChildElem(_T("RealData"));
-	}
-	else
-	{
-
-		_variant_t  vSql_RealData;
-		vSql_RealData = m_pRecordset->GetCollect(_T("dRealData"));
-
-		_variant_t  vSql_ThresholdData;
-		vSql_ThresholdData = m_pRecordset->GetCollect(_T("dThresholdValue"));
-
-		_variant_t  vSql_BOOLData;
-		vSql_BOOLData = m_pRecordset->GetCollect(_T("BoolValue"));
-		BOOL bBoolBeyond;
-		bBoolBeyond = (BOOL)vSql_BOOLData;
-		if (bBoolBeyond > 0)
+		Json::Value jsonRoot;
+		Json::Value jsonItem;
+		if (m_pRecordset->adoEOF)  //没有查找到记录
 		{
-			bBoolBeyond = 1;
-		}
-		else if (bBoolBeyond < 0)
-		{
-			bBoolBeyond = -1;
+			jsonItem["SN"] = strDeviceSn.c_str();
+			jsonItem["RealData"];
+			jsonRoot["Dev"] = jsonItem;
 		}
 		else
 		{
 
+			_variant_t  vSql_RealData;
+			vSql_RealData = m_pRecordset->GetCollect(_T("dRealData"));
+
+			_variant_t  vSql_ThresholdData;
+			vSql_ThresholdData = m_pRecordset->GetCollect(_T("dThresholdValue"));
+
+			_variant_t  vSql_BOOLData;
+			vSql_BOOLData = m_pRecordset->GetCollect(_T("BoolValue"));
+			BOOL bBoolBeyond;
+			bBoolBeyond = (BOOL)vSql_BOOLData;
+			if (bBoolBeyond > 0)
+			{
+				bBoolBeyond = 1;
+			}
+			else if (bBoolBeyond < 0)
+			{
+				bBoolBeyond = -1;
+			}
+			else
+			{
+
+			}
+
+			jsonItem["SN"] = strDeviceSn.c_str();
+			jsonItem["RealData"] = (double)vSql_RealData;
+			jsonItem["Threshold"] = (double)vSql_ThresholdData;
+			jsonItem["BoolBeyond"] = (bool)bBoolBeyond;
 		}
-
-
-		Xml.AddElem(_T("Dev"));
-		Xml.AddAttrib(_T("SN"), AtoW(strDeviceSn).c_str());
-		Xml.AddChildElem(_T("RealData"), vSql_RealData);
-		Xml.AddChildElem(_T("Threshold"), vSql_ThresholdData);
-
-		Xml.AddChildElem(_T("BoolBeyond"), bBoolBeyond);
-
+		jsonRoot["Dev"] = jsonItem;
+		strRetXml = jsonRoot.toStyledString();
 	}
+	else  //使用XML返回
+	{
+		Xml.SetDoc(_T("<?xml version='1.0' encoding='UTF-8'?> \n\r"));
+		Xml.AddElem(_T("Root"));
+		Xml.IntoElem();
+
+		if (m_pRecordset->adoEOF)  //没有查找到记录
+		{
+			Xml.AddElem(_T("Dev"));
+			Xml.AddAttrib(_T("SN"), AtoW(strDeviceSn).c_str());
+			Xml.AddChildElem(_T("RealData"));
+		}
+		else
+		{
+
+			_variant_t  vSql_RealData;
+			vSql_RealData = m_pRecordset->GetCollect(_T("dRealData"));
+
+			_variant_t  vSql_ThresholdData;
+			vSql_ThresholdData = m_pRecordset->GetCollect(_T("dThresholdValue"));
+
+			_variant_t  vSql_BOOLData;
+			vSql_BOOLData = m_pRecordset->GetCollect(_T("BoolValue"));
+			BOOL bBoolBeyond;
+			bBoolBeyond = (BOOL)vSql_BOOLData;
+			if (bBoolBeyond > 0)
+			{
+				bBoolBeyond = 1;
+			}
+			else if (bBoolBeyond < 0)
+			{
+				bBoolBeyond = -1;
+			}
+			else
+			{
+
+			}
 
 
-	strRetXml = WtoA(Xml.GetDoc());
+			Xml.AddElem(_T("Dev"));
+			Xml.AddAttrib(_T("SN"), AtoW(strDeviceSn).c_str());
+			Xml.AddChildElem(_T("RealData"), vSql_RealData);
+			Xml.AddChildElem(_T("Threshold"), vSql_ThresholdData);
+
+			Xml.AddChildElem(_T("BoolBeyond"), bBoolBeyond);
+
+		}
+		strRetXml = WtoA(Xml.GetDoc());
+	}
 
 	return true;
 }
@@ -301,16 +472,27 @@ bool CHTTPWork::SetDeviceThreshold(std::string   strDeviceSn, std::string  strdS
 		AfxMessageBox(e.Description());
 	}
 
-	Xml.SetDoc(_T("<?xml version='1.0' encoding='UTF-8'?> \n\r"));
-	Xml.AddElem(_T("Root"));
-	Xml.IntoElem();
 
 
 	if (vSql_ID.vt == VT_EMPTY || vSql_ID.vt == VT_NULL)//设备尚未添加
 	{
 		//生成返回包数据
-		Xml.AddElem(_T("Dec"), _T("Device  is Not Exist"));
-		Xml.AddElem(_T("Ret"), 201);
+		if (m_DBManger.RetJsonSet())
+		{
+			Json::Value jsonRoot;
+			Json::Value jsonItem;
+			jsonItem["Dec"] = "Device  is Not Exist";
+			jsonItem["Ret"] = "207";
+			jsonRoot.append(jsonItem);
+			strRetXml = jsonRoot.toStyledString();
+		}
+		else
+		{
+			Xml.SetDoc(_T("<?xml version='1.0' encoding='UTF-8'?> \n\r")); \
+				Xml.AddElem(_T("Dec"), _T("Device  is Not Exist"));
+			Xml.AddElem(_T("Ret"), 207);
+			strRetXml = WtoA(Xml.GetDoc());
+		}
 	}
 	else //设备已经添加
 	{
@@ -319,16 +501,43 @@ bool CHTTPWork::SetDeviceThreshold(std::string   strDeviceSn, std::string  strdS
 		if (!m_DBManger.ExecuteSQL(m_cstrSql.GetBuffer()))
 		{//操作执行失败
 			LOGGER_CERROR(theLogger, _T("设置阈值失败.\r\n"), GetLastError());
-			Xml.AddElem(_T("Dec"), _T("Set Threshold  Failled"));
-			Xml.AddElem(_T("Ret"), 200);
-			strRetXml = WtoA(Xml.GetDoc());
+			if (m_DBManger.RetJsonSet())
+			{
+				Json::Value jsonRoot;
+				Json::Value jsonItem;
+				jsonItem["Dec"] = "Set Threshold  Failled";
+				jsonItem["Ret"] = "208";
+				jsonRoot.append(jsonItem);
+				strRetXml = jsonRoot.toStyledString();
+			}
+			else
+			{
+				Xml.SetDoc(_T("<?xml version='1.0' encoding='UTF-8'?> \n\r")); \
+					Xml.AddElem(_T("Dec"), _T("Set Threshold  Failled"));
+				Xml.AddElem(_T("Ret"), 208);
+				strRetXml = WtoA(Xml.GetDoc());
+			}
 			return false;
 		}
-		Xml.AddElem(_T("Dec"), _T("Set Threshold   Ok"));
-		Xml.AddElem(_T("Ret"), 200);
-	}
-	strRetXml = WtoA(Xml.GetDoc());
 
+		//操作成功
+		if (m_DBManger.RetJsonSet())
+		{
+			Json::Value jsonRoot;
+			Json::Value jsonItem;
+			jsonItem["Dec"] = "Set Threshold  Ok";
+			jsonItem["Ret"] = "200";
+			jsonRoot.append(jsonItem);
+			strRetXml = jsonRoot.toStyledString();
+		}
+		else
+		{
+			Xml.SetDoc(_T("<?xml version='1.0' encoding='UTF-8'?> \n\r")); \
+				Xml.AddElem(_T("Dec"), _T("Set Threshold  Ok"));
+			Xml.AddElem(_T("Ret"), 200);
+			strRetXml = WtoA(Xml.GetDoc());
+		}
+	}
 	return true;
 }
 
@@ -355,10 +564,6 @@ bool CHTTPWork::AddDevice(std::string strName, std::string  strDeviceSn, std::st
 		AfxMessageBox(e.Description());
 	}
 
-	Xml.SetDoc(_T("<?xml version='1.0' encoding='UTF-8'?> \n\r"));
-	Xml.AddElem(_T("Root"));
-	Xml.IntoElem();
-
 
 	if (vSql_ID.vt == VT_EMPTY || vSql_ID.vt == VT_NULL)//设备尚未添加
 	{
@@ -366,22 +571,64 @@ bool CHTTPWork::AddDevice(std::string strName, std::string  strDeviceSn, std::st
 		m_cstrSql.Format(_T("INSERT INTO device  (strSN , nUserId)  VALUES ('%s'  , (SELECT user.id FROM user WHERE user.strUserName = '%s'))"),  AtoW(strDeviceSn.c_str()).c_str()  , AtoW(strName.c_str()).c_str());
 		if (!m_DBManger.ExecuteSQL(m_cstrSql.GetBuffer()))
 		{//操作执行失败
+			
 			LOGGER_CERROR(theLogger, _T("添加设备失败.\r\n"), GetLastError());
-			Xml.AddElem(_T("Dec"), _T("Add Device Failled"));
-			Xml.AddElem(_T("Ret"), 200);
-			strRetXml = WtoA(Xml.GetDoc());
+
+			if (m_DBManger.RetJsonSet())
+			{
+				Json::Value jsonRoot;
+				Json::Value jsonItem;
+				jsonItem["Dec"] = "Add Device Failled";
+				jsonItem["Ret"] = "205";
+				jsonRoot.append(jsonItem);
+				strRetXml = jsonRoot.toStyledString();
+			}
+			else
+			{
+				Xml.SetDoc(_T("<?xml version='1.0' encoding='UTF-8'?> \n\r")); \
+					Xml.AddElem(_T("Dec"), _T("Add Device Failled"));
+				Xml.AddElem(_T("Ret"), 205);
+				strRetXml = WtoA(Xml.GetDoc());
+			}
 			return false;
 		}
 		//生成返回包数据
-		Xml.AddElem(_T("Dec"), _T("Add Device  Ok"));
-		Xml.AddElem(_T("Ret"), 201);
+		if (m_DBManger.RetJsonSet())
+		{
+			Json::Value jsonRoot;
+			Json::Value jsonItem;
+			jsonItem["Dec"] = "Add Device Ok";
+			jsonItem["Ret"] = "200";
+			jsonRoot.append(jsonItem);
+			strRetXml = jsonRoot.toStyledString();
+		}
+		else
+		{
+			Xml.SetDoc(_T("<?xml version='1.0' encoding='UTF-8'?> \n\r")); \
+				Xml.AddElem(_T("Dec"), _T("Add Device Ok"));
+			Xml.AddElem(_T("Ret"), 200);
+			strRetXml = WtoA(Xml.GetDoc());
+		}
 	}
 	else //设备已经添加
 	{
-		Xml.AddElem(_T("Dec"), _T("Device is Exist"));
-		Xml.AddElem(_T("Ret"), 200);
+		if (m_DBManger.RetJsonSet())
+		{
+			Json::Value jsonRoot;
+			Json::Value jsonItem;
+			jsonItem["Dec"] = "Device is Exist";
+			jsonItem["Ret"] = "206";
+			jsonRoot.append(jsonItem);
+			strRetXml = jsonRoot.toStyledString();
+		}
+		else
+		{
+			Xml.SetDoc(_T("<?xml version='1.0' encoding='UTF-8'?> \n\r")); \
+				Xml.AddElem(_T("Dec"), _T("Device is Exist"));
+			Xml.AddElem(_T("Ret"), 206);
+			strRetXml = WtoA(Xml.GetDoc());
+		}
 	}
-	strRetXml = WtoA(Xml.GetDoc());
 	return true;
 }
 
@@ -408,10 +655,6 @@ bool CHTTPWork::AddUser(std::string strName, std::string strPwd,std::string& str
 		AfxMessageBox(e.Description());
 	}
 
-	Xml.SetDoc(_T("<?xml version='1.0' encoding='UTF-8'?> \n\r"));
-	Xml.AddElem(_T("Root"));
-	Xml.IntoElem();
-
 
 	if (vSql_ID.vt == VT_EMPTY || vSql_ID.vt == VT_NULL)//用户不存在
 	{
@@ -420,21 +663,64 @@ bool CHTTPWork::AddUser(std::string strName, std::string strPwd,std::string& str
 		if (!m_DBManger.ExecuteSQL(m_cstrSql.GetBuffer()))
 		{//操作执行失败
 			LOGGER_CERROR(theLogger, _T("注册用户失败.\r\n"), GetLastError());
-			Xml.AddElem(_T("Dec"), _T("Register Failled"));
-			Xml.AddElem(_T("Ret"), 200);
-			strRetXml = WtoA(Xml.GetDoc());
+			//使用JSON返回数据
+			if (m_DBManger.RetJsonSet())
+			{
+				Json::Value jsonRoot;
+				Json::Value jsonItem;
+				jsonItem["Dec"] = "Register Failled";
+				jsonItem["Ret"] = "203";
+				jsonRoot.append(jsonItem);
+				strRetXml = jsonRoot.toStyledString();
+			}
+			else
+			{
+				Xml.SetDoc(_T("<?xml version='1.0' encoding='UTF-8'?> \n\r")); \
+					Xml.AddElem(_T("Dec"), _T("Register Failled"));
+				Xml.AddElem(_T("Ret"), 203);
+				strRetXml = WtoA(Xml.GetDoc());
+			}
 			return false;
 		}
-		//生成返回包数据
-		Xml.AddElem(_T("Dec"), _T("Register Ok"));
-		Xml.AddElem(_T("Ret"), 201);
+
+		//注册成功
+		if (m_DBManger.RetJsonSet())
+		{
+			Json::Value jsonRoot;
+			Json::Value jsonItem;
+			jsonItem["Dec"] = "Register Ok";
+			jsonItem["Ret"] = "200";
+			jsonRoot.append(jsonItem);
+			strRetXml = jsonRoot.toStyledString();
+		}
+		else
+		{
+			Xml.SetDoc(_T("<?xml version='1.0' encoding='UTF-8'?> \n\r")); \
+				Xml.AddElem(_T("Dec"), _T("Register Ok"));
+			Xml.AddElem(_T("Ret"), 200);
+			strRetXml = WtoA(Xml.GetDoc());
+		}
+
 	}
 	else //用户已经存在
 	{
-		Xml.AddElem(_T("Dec"), _T("UserName is Exist"));
-		Xml.AddElem(_T("Ret"), 200);
+		if (m_DBManger.RetJsonSet())
+		{
+			Json::Value jsonRoot;
+			Json::Value jsonItem;
+			jsonItem["Dec"] = "UserName is Exist";
+			jsonItem["Ret"] = "204";
+			jsonRoot.append(jsonItem);
+			strRetXml = jsonRoot.toStyledString();
+		}
+		else
+		{
+			Xml.SetDoc(_T("<?xml version='1.0' encoding='UTF-8'?> \n\r")); \
+				Xml.AddElem(_T("Dec"), _T("UserName is Exist"));
+			Xml.AddElem(_T("Ret"), 204);
+			strRetXml = WtoA(Xml.GetDoc());
+		}
 	}
-	strRetXml = WtoA(Xml.GetDoc());
 
 	return true;
 }
