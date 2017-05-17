@@ -270,11 +270,13 @@ void CHttpClientDemoDlg::OnBnClickedBtnAddDev()
 	
 	UserName:xxxx&DevSn:xxxx*/
 
-	strReqTmp = "POST /Main/AddDevice HTTP/1.0";
-	strReqTmp += "\r\n Content-Type: text/html; charset=UTF-8";
+	
+
+	strReqTmp = "POST /Main/AddDevice?";
+	strReqTmp += "UserName:" + WtoA(cStrUserName.GetBuffer()) + "&DevSn:" + WtoA(cStrDevSn.GetBuffer()) + "&NickName:xxxxx HTTP/1.1";
+	strReqTmp += " \r\n Content-Type: text/html; charset=UTF-8";
 	strReqTmp += "\r\n\r\n";
-	strReqTmp += "UserName:" + WtoA(cStrUserName.GetBuffer()) + "&DevSn:" + WtoA(cStrDevSn.GetBuffer());
- 
+
 
 	strReqHttpMsg = strReqTmp;
 

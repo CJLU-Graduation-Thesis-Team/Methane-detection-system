@@ -536,11 +536,30 @@ bool CIOCPModel::_DoAccpet( PER_SOCKET_CONTEXT* pSocketContext, PER_IO_CONTEXT* 
 
 
 	// 计算实际的检测值
-	double dRealValData;
-	dRealValData = atof(strAdcData.c_str()) / 255.0 * 5.0 ;     //实际电压值
+	//浓度        三位数
+	//0				045
+	//0.22			168
+	//0.49			183
+	//1.09			215
+	//Excel中拟合
+	//y = 1E-04x2 - 0.0185x + 0.6374
+
+
+	int nAdcData;
+	nAdcData = atoi(strAdcData.c_str());
+
+	if (nAdcData < 45)
+	{
+		nAdcData = 45;
+	}
 
 	double dRealTestData;
-	dRealTestData = dRealValData * 1;
+	dRealTestData = 0.0001 * nAdcData * nAdcData - 0.0185 * nAdcData + 0.6374;
+
+	if (dRealTestData < 0)
+	{
+		dRealTestData = 0.01;
+	}
 
 
 	// 数据库操作类
@@ -663,12 +682,30 @@ bool CIOCPModel::_DoRecv( PER_SOCKET_CONTEXT* pSocketContext, PER_IO_CONTEXT* pI
 
 
 	// 计算实际的检测值
-	double dRealValData;
-	dRealValData = atof(strAdcData.c_str()) / 255.0 * 5.0;     //实际电压值
+	//浓度        三位数
+	//0				045
+	//0.22			168
+	//0.49			183
+	//1.09			215
+	//Excel中拟合
+	//y = 1E-04x2 - 0.0185x + 0.6374
+
+
+	int nAdcData;
+	nAdcData = atoi(strAdcData.c_str());
+
+	if (nAdcData < 45)
+	{
+		nAdcData = 45;
+	}
 
 	double dRealTestData;
-	dRealTestData = dRealValData * 1;
+	dRealTestData = 0.0001 * nAdcData * nAdcData - 0.0185 * nAdcData + 0.6374;
 
+	if( dRealTestData < 0 )
+	{
+		dRealTestData = 0.01;
+	}
 
 	// 数据库操作类
 	std::string strRetXml;

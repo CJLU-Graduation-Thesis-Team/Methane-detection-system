@@ -1457,7 +1457,7 @@ void CHTTPServer::OnRequest(PCLIENTINF pSockInf)
 					}
 					else if (!strUrlObject.compare(_T("/Main/AddDevice")))
 					{
-						cHttpWork.AddDevice(vecUrlData.at(0), vecUrlData.at(1), strRetXml);
+						cHttpWork.AddDevice(vecUrlData.at(0), vecUrlData.at(1), vecUrlData.at(2), strRetXml);
 						bReqDone = true;
 					}
 					else if (!strUrlObject.compare(_T("/Main/SetDeviceThreshold")))

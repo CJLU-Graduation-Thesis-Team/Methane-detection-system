@@ -287,17 +287,22 @@ bool CHTTPRequest::GetUrlData(HTTP_METHOD enumMetMod , std::wstring wstrUrlObjec
 			}
 			else if (!wstrUrlObject.compare(_T("/Main/AddDevice")))
 			{
-				int nPosName, nPosDevSn, nPosAnd;
+				int nPosName, nPosDevSn,nPosNickName, nPosAndFir, nPosAndSen;
 				nPosName = strDataTmp.find("UserName") + sizeof("UserName");  //字符串末尾有‘\0’ 直接相加 相当与加上=
 				nPosDevSn = strDataTmp.find("DevSn") + sizeof("DevSn");
-				nPosAnd = strDataTmp.find('&');
+				nPosNickName = strDataTmp.find("NickName") + sizeof("NickName");
+				nPosAndFir = strDataTmp.find_first_of('&' , 0);
+				nPosAndSen = strDataTmp.find_last_of('&', strDataTmp.length());
 
-				std::string strUserName, strDevSn;
-				strUserName = strDataTmp.substr(nPosName, (nPosAnd - nPosName));
-				strDevSn = strDataTmp.substr(nPosDevSn, strDataTmp.length() - nPosDevSn);
+				std::string strUserName, strDevSn,strNickName;
+				strUserName = strDataTmp.substr(nPosName, (nPosAndFir - nPosName));
+				strDevSn = strDataTmp.substr(nPosDevSn, (nPosAndSen - nPosDevSn));
+				strNickName = strDataTmp.substr(nPosNickName, strDataTmp.length() - nPosNickName);
 
 				vecRetData.push_back(strUserName);
 				vecRetData.push_back(strDevSn);
+				vecRetData.push_back(strNickName);
+
 			}
 			else if (!wstrUrlObject.compare(_T("/Main/SetDeviceThreshold")))
 			{

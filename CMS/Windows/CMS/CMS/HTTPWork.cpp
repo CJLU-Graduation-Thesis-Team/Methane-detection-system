@@ -181,7 +181,7 @@ bool CHTTPWork::GetDeviceList(std::string strName, std::string& strRetXml)
 			for (int i = 0; i < nDevNum; i++)
 			{
 				m_cstrSql.Format(_T("SELECT\
-				dat.dRealData, dev.dThresholdValue, dat.dRealData - dev.dThresholdValue as BoolValue\
+				dev.strNickName , dat.dRealData, dev.dThresholdValue, dat.dRealData - dev.dThresholdValue as BoolValue\
 				FROM\
 				DATA dat\
 				LEFT JOIN device dev ON dev.id = dat.nDevId\
@@ -191,7 +191,9 @@ bool CHTTPWork::GetDeviceList(std::string strName, std::string& strRetXml)
 				m_pRecordset = m_DBManger.GetRecordSet(m_cstrSql.GetBuffer());
 				if (m_pRecordset->adoEOF)  //没有查找到记录
 				{
+
 					jsonItem["SN"] = vecDevSn.at(i).c_str();
+					jsonItem["Ret"] = 210;
 					arrayObj.append(jsonItem);
 
 					//Xml.AddElem(_T("Dev"));
@@ -201,6 +203,9 @@ bool CHTTPWork::GetDeviceList(std::string strName, std::string& strRetXml)
 				}
 				else
 				{
+						_variant_t  vSql_NickName;
+					vSql_NickName = m_pRecordset->GetCollect(_T("strNickName"));
+
 					_variant_t  vSql_RealData;
 					vSql_RealData = m_pRecordset->GetCollect(_T("dRealData"));
 
@@ -209,21 +214,27 @@ bool CHTTPWork::GetDeviceList(std::string strName, std::string& strRetXml)
 
 					_variant_t  vSql_BOOLData;
 					vSql_BOOLData = m_pRecordset->GetCollect(_T("BoolValue"));
-					BOOL bBoolBeyond;
-					bBoolBeyond = (BOOL)vSql_BOOLData;
-					if (bBoolBeyond > 0)
+					BOOL bBoolBeyond = FALSE;
+					int nBoolBeyond;
+					nBoolBeyond = (int)vSql_BOOLData;
+					if (nBoolBeyond > 0)
 					{
 						bBoolBeyond = 1;
 					}
-					else if (bBoolBeyond < 0)
+					else if (nBoolBeyond < 0)
 					{
-						bBoolBeyond = -1;
+						bBoolBeyond = 0;
 					}
 					else
 					{
 
 					}
 					jsonItem["SN"] = vecDevSn.at(i).c_str();
+					jsonItem["Ret"] = 200;
+
+					std::string  stNickName = (_bstr_t)vSql_NickName;
+
+					jsonItem["NickName"] = stNickName;
 					jsonItem["RealData"] = (double)vSql_RealData;
 					jsonItem["Threshold"] = (double)vSql_ThresholdData;
 					jsonItem["BoolBeyond"] = (BOOL)bBoolBeyond;
@@ -336,7 +347,7 @@ bool CHTTPWork::GetDeviceStatus(std::string  strDeviceSn, std::string&  strRetXm
 	std::vector<std::string> vecDevSn;
 
 	m_cstrSql.Format(_T("SELECT\
-		dat.dRealData, dev.dThresholdValue, dat.dRealData - dev.dThresholdValue as BoolValue\
+		dev.strNickName ,dat.dRealData, dev.dThresholdValue, dat.dRealData - dev.dThresholdValue as BoolValue\
 		FROM\
 		DATA dat\
 		LEFT JOIN device dev ON dev.id = dat.nDevId\
@@ -356,12 +367,17 @@ bool CHTTPWork::GetDeviceStatus(std::string  strDeviceSn, std::string&  strRetXm
 		Json::Value jsonItem;
 		if (m_pRecordset->adoEOF)  //没有查找到记录
 		{
+
 			jsonItem["SN"] = strDeviceSn.c_str();
-			jsonItem["RealData"];
+			//jsonItem["RealData"];
 			jsonRoot["Dev"] = jsonItem;
+			jsonRoot["Ret"] = 210;
+
 		}
 		else
 		{
+			_variant_t  vSql_NickName;
+			vSql_NickName = m_pRecordset->GetCollect(_T("strNickName"));
 
 			_variant_t  vSql_RealData;
 			vSql_RealData = m_pRecordset->GetCollect(_T("dRealData"));
@@ -371,15 +387,17 @@ bool CHTTPWork::GetDeviceStatus(std::string  strDeviceSn, std::string&  strRetXm
 
 			_variant_t  vSql_BOOLData;
 			vSql_BOOLData = m_pRecordset->GetCollect(_T("BoolValue"));
-			BOOL bBoolBeyond;
-			bBoolBeyond = (BOOL)vSql_BOOLData;
-			if (bBoolBeyond > 0)
+
+			BOOL bBoolBeyond = FALSE;
+			int nBoolBeyond;
+			nBoolBeyond = (int)vSql_BOOLData;
+			if (nBoolBeyond > 0)
 			{
 				bBoolBeyond = 1;
 			}
-			else if (bBoolBeyond < 0)
+			else if (nBoolBeyond < 0)
 			{
-				bBoolBeyond = -1;
+				bBoolBeyond = 0;
 			}
 			else
 			{
@@ -387,9 +405,14 @@ bool CHTTPWork::GetDeviceStatus(std::string  strDeviceSn, std::string&  strRetXm
 			}
 
 			jsonItem["SN"] = strDeviceSn.c_str();
+			jsonItem["Ret"] = 200;
+
+			std::string  stNickName = (_bstr_t)vSql_NickName;
+			jsonItem["NickName"] = stNickName;
+
 			jsonItem["RealData"] = (double)vSql_RealData;
 			jsonItem["Threshold"] = (double)vSql_ThresholdData;
-			jsonItem["BoolBeyond"] = (bool)bBoolBeyond;
+			jsonItem["BoolBeyond"] =bBoolBeyond;
 		}
 		jsonRoot["Dev"] = jsonItem;
 		strRetXml = jsonRoot.toStyledString();
@@ -541,7 +564,7 @@ bool CHTTPWork::SetDeviceThreshold(std::string   strDeviceSn, std::string  strdS
 	return true;
 }
 
-bool CHTTPWork::AddDevice(std::string strName, std::string  strDeviceSn, std::string&  strRetXml)
+bool CHTTPWork::AddDevice(std::string strName, std::string  strDeviceSn, std::string strNickName, std::string&  strRetXml)
 {
 	CMarkup Xml;
 	_variant_t  vSql_ID;
@@ -568,7 +591,7 @@ bool CHTTPWork::AddDevice(std::string strName, std::string  strDeviceSn, std::st
 	if (vSql_ID.vt == VT_EMPTY || vSql_ID.vt == VT_NULL)//设备尚未添加
 	{
 		//添加用户
-		m_cstrSql.Format(_T("INSERT INTO device  (strSN , nUserId)  VALUES ('%s'  , (SELECT user.id FROM user WHERE user.strUserName = '%s'))"),  AtoW(strDeviceSn.c_str()).c_str()  , AtoW(strName.c_str()).c_str());
+		m_cstrSql.Format(_T("INSERT INTO device  (strSN , nUserId , strNickName)  VALUES ('%s'  , (SELECT user.id FROM user WHERE user.strUserName = '%s') , '%s' )"),  AtoW(strDeviceSn.c_str()).c_str()  , AtoW(strName.c_str()).c_str() , AtoW(strNickName.c_str()).c_str());
 		if (!m_DBManger.ExecuteSQL(m_cstrSql.GetBuffer()))
 		{//操作执行失败
 			

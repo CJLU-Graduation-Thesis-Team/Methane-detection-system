@@ -27,7 +27,7 @@ public:
 	//Post
 	bool SetDeviceThreshold(std::string   strDeviceSn, std::string  strdSetData, std::string&  strRetXml);
 
-	bool AddDevice(std::string strName, std::string strDeviceSn, std::string&  strRetXml);
+	bool AddDevice(std::string strName, std::string strDeviceSn, std::string strNickName, std::string&  strRetXml);
 
 	bool AddUser(std::string strName, std::string strPwd, std::string&  strRetXml);
 
