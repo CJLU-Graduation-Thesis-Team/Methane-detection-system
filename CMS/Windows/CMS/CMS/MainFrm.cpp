@@ -635,7 +635,7 @@ void CMainFrame::OnConnectionClosed(const wchar_t *pszIP, unsigned int nPort, RE
 	case RR_SENDCOMPLETE: { strReason  = _T("数据发送完毕"); break; }
 	case RR_RECV_FAILED: { strReason = _T("接收失败"); break; }
 	case  RR_SEND_FAILED: { strReason = _T("发送失败"); break; }
-	case RR_DEAD: { strReason = _T("不活跃连接"); break; }
+	//case RR_DEAD: { strReason = _T("不活跃连接"); break; }
 	case RR_SESSION_TIMEOUT: { strReason= _T("会话超时"); break; }
 	default: { strReason = _T("未知"); break; }
 	}

@@ -5,7 +5,7 @@
 
 CTCP::CTCP()
 :strServerIp("120.25.214.105"),
-nPort(80)
+nPort(88)
 {
 	WSAStartup(MAKEWORD(1, 1), &wsa); //initial Ws2_32.dll by a process  
 }

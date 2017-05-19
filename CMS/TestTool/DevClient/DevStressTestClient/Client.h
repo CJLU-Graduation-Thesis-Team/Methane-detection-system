@@ -24,9 +24,9 @@ Notes:
 // 缓冲区长度(8*1024字节)
 #define MAX_BUFFER_LEN 8196    
 #define DEFAULT_PORT          8808                      // 默认端口
-#define DEFAULT_IP            _T("127.0.0.1")            // 默认IP地址
+#define DEFAULT_IP            _T("120.25.214.105")            // 默认IP地址
 #define DEFAULT_THREADS       100                        // 默认并发线程数
-#define DEFAULT_MESSAGE       _T("电压值255")   // 默认的发送信息
+#define DEFAULT_MESSAGE       _T("DevSn:123456AdcData:120")   // 默认的发送信息
 
 class CClient;
 

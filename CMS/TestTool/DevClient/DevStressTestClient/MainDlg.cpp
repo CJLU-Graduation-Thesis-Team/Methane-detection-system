@@ -167,7 +167,7 @@ void CMainDlg::InitGUI()
 	}
 
 	// 设置本机IP地址
-	SetDlgItemText( IDC_IPADDRESS_SERVER,m_Client.GetLocalIP() );
+	SetDlgItemText( IDC_IPADDRESS_SERVER, DEFAULT_IP);
 	// 设置默认端口
 	SetDlgItemInt( IDC_EDIT_PORT,DEFAULT_PORT );
 	// 设置默认的并发线程数

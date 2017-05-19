@@ -295,5 +295,7 @@ private:
 
 	//×Ö·û´®×ª»»Àà
 	StringConver m_StringConver;
+
+	//CHTTPWork m_Work;
 };
 

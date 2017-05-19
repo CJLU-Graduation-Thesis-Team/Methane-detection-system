@@ -218,7 +218,7 @@ void CHttpClientDemoDlg::OnBnClickedBtnReg()
 
 	Content - Type : text / html; charset = UTF - 8 */
 
-	strReqTmp = "POST /Main/AddUser?UserName" + WtoA(cStrUserName.GetBuffer()) + "&PassWd:" + WtoA(cStrPassWd.GetBuffer()) + " HTTP/1.0";
+	strReqTmp = "POST /Main/AddUser?UserName:" + WtoA(cStrUserName.GetBuffer()) + "&PassWd:" + WtoA(cStrPassWd.GetBuffer()) + " HTTP/1.0";
 	//strReqTmp += "UserName:" + WtoA(cStrUserName.GetBuffer()) + "&PassWd:" + WtoA(cStrPassWd.GetBuffer());
 	strReqTmp += "\r\n Content-Type: text/html; charset=UTF-8";
 	strReqTmp += "\r\n\r\n";
@@ -240,11 +240,11 @@ void CHttpClientDemoDlg::OnBnClickedBtnLogin()
 
 	std::string strReqTmp;
 
-	/*GET /Login ? UserName = xxxx &PassWd = xxxx   HTTP / 1.0
+	/*GET /Login ?PassWd=xxxx &UserName=xxxx   HTTP / 1.0
 
 	Content - Type : text / html; charset = UTF - 8*/
 
-	strReqTmp = "GET /Login?UserName=" + WtoA(cStrUserName.GetBuffer()) + "&PassWd=" + WtoA(cStrPassWd.GetBuffer()) + " HTTP/1.0";
+	strReqTmp = "GET /Login?PassWd=" + WtoA(cStrPassWd.GetBuffer()) + "&UserName=" + WtoA(cStrUserName.GetBuffer()) + " HTTP/1.0";
 	strReqTmp += "\r\n Content-Type: text/html; charset=UTF-8";
 	strReqTmp += "\r\n\r\n";
 
@@ -256,24 +256,26 @@ void CHttpClientDemoDlg::OnBnClickedBtnLogin()
 
 void CHttpClientDemoDlg::OnBnClickedBtnAddDev()
 {
+
+
 	CString cStrUserName;
 	CString cStrDevSn;
+	CString cStrNickName;
 
 	GetDlgItem(IDC_SET1_NAME)->GetWindowText(cStrUserName);
 	GetDlgItem(IDC_SET1_SN)->GetWindowText(cStrDevSn);
+	GetDlgItem(IDC_SET1_NICKNAME)->GetWindowText(cStrNickName);
 
 	std::string strReqTmp;
 
-	/*POST /Main/AddDevice   HTTP / 1.0
+	/*POST /Main/AddDevice?UserName:xxxx&DevSn:xxxx HTTP/1.0
 
-	Content - Type : text / html; charset = UTF - 8
-	
-	UserName:xxxx&DevSn:xxxx*/
+	Content - Type : text / html; charset = UTF - 8*/
 
-	
+	strReqTmp = "POST /Main/AddDevice?UserName:" + WtoA(cStrUserName.GetBuffer()) + "&DevSn:" + WtoA(cStrDevSn.GetBuffer());
 
-	strReqTmp = "POST /Main/AddDevice?";
-	strReqTmp += "UserName:" + WtoA(cStrUserName.GetBuffer()) + "&DevSn:" + WtoA(cStrDevSn.GetBuffer()) + "&NickName:xxxxx HTTP/1.1";
+	strReqTmp += "&NickName:" + WtoA(cStrNickName.GetBuffer()) + " HTTP/1.1\r\n";
+	//strReqTmp += "UserName:" + WtoA(cStrUserName.GetBuffer()) + "&DevSn:" + WtoA(cStrDevSn.GetBuffer()) + "&NickName:xxxxx HTTP/1.1";
 	strReqTmp += " \r\n Content-Type: text/html; charset=UTF-8";
 	strReqTmp += "\r\n\r\n";
 
@@ -336,16 +338,14 @@ void CHttpClientDemoDlg::OnBnClickedBtnSetThor()
 
 	std::string strReqTmp;
 
-	/*POST  /Main/SetDeviceThreshold   HTTP / 1.0
+	/*POST  /Main/SetDeviceThreshold?Threshold:123.0&DevSn:12345 HTTP / 1.0
 
-	Content - Type : text / html; charset = UTF - 8
+	Content - Type : text / html; charset = UTF - 8*/
 
-	Threshold:123.0&DevSn:12345*/
-
-	strReqTmp = "POST /Main/SetDeviceThreshold HTTP/1.0";
+	strReqTmp = "POST /Main/SetDeviceThreshold?Threshold="+ WtoA(cStrThro.GetBuffer()) + "&DevSn:" + WtoA(cStrDevSn.GetBuffer())+ " HTTP/1.0";
 	strReqTmp += "\r\n Content-Type: text/html; charset=UTF-8";
 	strReqTmp += "\r\n\r\n";
-	strReqTmp += "Threshold:" + WtoA(cStrThro.GetBuffer()) + "&DevSn:" + WtoA(cStrDevSn.GetBuffer());
+	//strReqTmp += "Threshold:" + WtoA(cStrThro.GetBuffer()) + "&DevSn:" + WtoA(cStrDevSn.GetBuffer());
 
 
 	strReqHttpMsg = strReqTmp;

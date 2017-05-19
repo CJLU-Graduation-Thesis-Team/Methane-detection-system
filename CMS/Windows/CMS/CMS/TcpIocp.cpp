@@ -729,7 +729,7 @@ bool CIOCPModel::_DoRecv( PER_SOCKET_CONTEXT* pSocketContext, PER_IO_CONTEXT* pI
 	}
 	else
 	{
-		LOGGER_CINFO(theLogger, _T("插入数据失败.\r\n"));
+		LOGGER_CINFO(theLogger, _T("插入数据失败.!!!!!!!!!!!!!!!!.\r\n"));
 	}
 
 
