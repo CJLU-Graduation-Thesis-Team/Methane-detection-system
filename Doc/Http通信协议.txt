@@ -1,0 +1,111 @@
+Mbobile --> CMS
+	请求方式	URL												附带参数
+1	"GET"  		"/Login?PassWd=123&UserName=12345"   
+2	"GET"  		"/Main/GetDeviceList?UserName=123"
+3	"GET"  		"/Main/GetDeviceStatus?DevSn=12345678"
+	----------------------------------------------------------------------------------------
+4	"POST" 		"/Main/AddUser"  								UserName:zhang3&PassWd:12345
+5	"POST" 		"/Main/AddDevice"  								UserName:zhang3&DevSn:12345 
+6	"POST" 		"/Main/SetDeviceThreshold" 						Threshold:123.0&DevSn:12345
+
+
+4	"POST" 		"/Main/AddUser?UserName:zhang3&PassWd:12345"  								
+5	"POST" 		"/Main/AddDevice?UserName:zhang3&DevSn:12345&NickName:xxxxx"  								 
+6	"POST" 		"/Main/SetDeviceThreshold?Threshold:1.04&DevSn:12345" 						
+
+
+CMS  --> Mobile
+
+1:
+	<?xml version='1.0' encoding='UTF-8'?>
+	<Root>
+		<Dec>Login Ok</Dec>
+		<Ret>200</Ret>
+	</Root>
+
+
+2:
+BoolBeyond : RealData - Threshold
+浓度超出为1 相等为0 未超出为-1
+
+RealData，Threshold 格式为Double
+
+	<?xml version='1.0' encoding='UTF-8'?>
+	<Root>
+		<Ret>200</Ret>
+		<DevList>
+			<Dev Id="0" SN="12345678">
+				<RealData>1111</RealData>      
+				<Threshold>120</Threshold>
+				<BoolBeyond>1</BoolBeyond>
+			</Dev>
+			<Dev Id="1" SN="12345677">
+				<RealData>12</RealData>
+				<Threshold>123</Threshold>
+				<BoolBeyond>-1</BoolBeyond>
+			</Dev>
+		</DevList>
+	</Root>
+
+
+3:
+	<?xml version='1.0' encoding='UTF-8'?>
+	<Root>
+		<Dev SN="12345678">
+			<RealData>1111</RealData>
+			<Threshold>120</Threshold>
+			<BoolBeyond>1</BoolBeyond>
+		</Dev>
+	</Root>
+
+4:
+	<?xml version='1.0' encoding='UTF-8'?>
+	<Root>
+		<Dec>Register Ok</Dec>
+		<Ret>200</Ret>
+	</Root>
+
+
+5:
+	<?xml version='1.0' encoding='UTF-8'?>
+	<Root>
+		<Dec>Add Device  Ok</Dec>
+		<Ret>200</Ret>
+	</Root>
+
+
+6:
+	<?xml version='1.0' encoding='UTF-8'?>
+	<Root>
+		<Dec>Set Threshold   Ok</Dec>
+		<Ret>200</Ret>
+	</Root>
+
+===========================================================================================
+备注：
+1.关于编码格式：
+	所有请求信息 使用Utf-8编码  不使用Unicode编码 每个字符单字节
+2.关于数据格式：
+	DevSn
+	UserName	为string 格式
+	PassWd		
+	---------------------------
+	Threshold  	为Double 格式
+
+
+RET 
+200 操作成功
+//Login
+201 用户名不存在
+202 密码错误
+//Add User
+203 注册用户失败
+204 用户名已经存在
+//Add Dev
+205 添加设备失败
+206 设备已经存在
+//Set 
+207 设备不存在
+208 设置失败
+//GetDevList
+209用户下没有设备
